@@ -1,0 +1,8 @@
+apply plugin: 'java'
+
+defaultTasks 'clean'
+
+jar {
+    baseName = 'JavaNetworking'
+    version =  '0.0.1'
+}
