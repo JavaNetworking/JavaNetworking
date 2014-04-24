@@ -57,9 +57,6 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	public void execute() throws Throwable {
 		super.execute();
 		
-		System.out.println("\nSending '" + urlConnection.getRequestMethod() + "' request to URL : " + urlConnection);
-		System.out.println("Response Code : " + urlConnection.getResponseCode());
- 
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(urlConnection.getInputStream()));
 		String inputLine;
