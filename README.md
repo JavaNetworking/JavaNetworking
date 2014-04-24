@@ -6,6 +6,14 @@ JavaNetworking is an asynchronous java networking library.
 
 ## Basic usage
 
+### Build
+
+```bash
+./gradlew build
+```
+
+### Download JSon string
+
 ```java
 String urlString = "https://api.github.com/search/repositories?q=tetris+language:assembly&sort=stars&order=desc";
 		
