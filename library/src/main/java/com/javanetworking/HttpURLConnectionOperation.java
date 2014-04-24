@@ -20,8 +20,9 @@
 
 package com.javanetworking;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import com.javanetworking.operationqueue.BaseOperation;
 import com.javanetworking.operationqueue.OperationQueue;
@@ -30,7 +31,7 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	
 	public interface Completion {
 		void failure(HttpURLConnection urlConnection, Throwable t);
-		void success(HttpURLConnection urlConnection, Object responseData);
+		void success(HttpURLConnection urlConnection, byte[] responseData);
 	}
 	
 	public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, Completion completion) {
@@ -39,13 +40,15 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	
 	private HttpURLConnection urlConnection;
 	private Completion completion;
-	private StringBuffer accumulationBuffer;
+	private ByteArrayOutputStream accumulationBuffer;
 	
 	private HttpURLConnectionOperation(HttpURLConnection urlConnection, Completion completion) {
 		super();
 		
 		this.urlConnection = urlConnection;
 		this.completion = completion;
+
+		this.accumulationBuffer = new ByteArrayOutputStream();
 	}
 	
 	public void start() {
@@ -57,13 +60,11 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	public void execute() throws Throwable {
 		super.execute();
 		
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(urlConnection.getInputStream()));
-		String inputLine;
+		BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
 		
-		accumulationBuffer = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			accumulationBuffer.append(inputLine);
+		int c;
+		while ((c = in.read()) != -1) {
+			this.accumulationBuffer.write(c);
 		}
 		in.close();
 	}
@@ -80,8 +81,13 @@ public class HttpURLConnectionOperation extends BaseOperation {
 				completion.failure(urlConnection, new Throwable("Cancelled"));
 				break;
 			default:
-				completion.success(urlConnection, new String(accumulationBuffer));
+				completion.success(urlConnection, this.accumulationBuffer.toByteArray());
 				break;
+		}
+		try {
+			this.accumulationBuffer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		OperationQueue.destroy();

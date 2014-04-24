@@ -26,8 +26,8 @@ HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationW
 		System.out.println("Throwable: " + t);
 	}
 	@Override
-	public void success(HttpURLConnection urlConnection, Object responseData) {
-		System.out.println("Response data:\n" + responseData);
+	public void success(HttpURLConnection urlConnection, byte[] responseData) {
+		System.out.println("Response data:\n" + new String(responseData));
 	}
 });
 httpOperation.start();
