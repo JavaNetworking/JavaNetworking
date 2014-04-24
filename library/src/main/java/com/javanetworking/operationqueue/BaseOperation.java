@@ -40,6 +40,6 @@ public class BaseOperation implements Operation {
 		return state;
 	}
 
-	public void execute() throws Throwable {}
+	public void execute() {}
 	public void complete(OperationState state) {}
 }

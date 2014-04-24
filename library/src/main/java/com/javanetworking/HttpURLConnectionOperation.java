@@ -57,16 +57,19 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	}
 	
 	@Override
-	public void execute() throws Throwable {
+	public void execute() {
 		super.execute();
 		
-		BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
-		
-		int c;
-		while ((c = in.read()) != -1) {
-			this.accumulationBuffer.write(c);
-		}
-		in.close();
+		try {
+			BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+			
+			int c;
+			while ((c = in.read()) != -1) {
+				this.accumulationBuffer.write(c);
+			}
+			in.close();
+			
+		} catch (IOException e) {}
 	}
 	
 	@Override
