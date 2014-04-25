@@ -33,6 +33,6 @@ public interface Operation {
 	void setState(OperationState state);
 	OperationState getState();
 	
-	void execute() throws Throwable;
-	void complete(OperationState state);
+	void execute();
+	void complete();
 }

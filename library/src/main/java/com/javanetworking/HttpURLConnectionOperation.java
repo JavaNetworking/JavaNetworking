@@ -23,6 +23,7 @@ package com.javanetworking;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import com.javanetworking.operationqueue.BaseOperation;
 import com.javanetworking.operationqueue.OperationQueue;
@@ -40,6 +41,7 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	
 	private HttpURLConnection urlConnection;
 	private Completion completion;
+	private InputStream inputStream;
 	private ByteArrayOutputStream accumulationBuffer;
 	
 	private HttpURLConnectionOperation(HttpURLConnection urlConnection, Completion completion) {
@@ -52,31 +54,35 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	}
 	
 	public void start() {
-		OperationQueue.initialize();
-		OperationQueue.addOperation(this);
+		OperationQueue queue = new OperationQueue();
+		queue.addOperation(this);
 	}
 	
 	@Override
-	public void execute() {
+	public synchronized void execute() {
 		super.execute();
 		
 		try {
-			BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+			this.inputStream = urlConnection.getInputStream();
+			BufferedInputStream bin = new BufferedInputStream(this.inputStream);
 			
 			int c;
-			while ((c = in.read()) != -1) {
+			while (-1 != (c = bin.read())) {
 				this.accumulationBuffer.write(c);
 			}
-			in.close();
-			
-		} catch (IOException e) {}
+			bin.close();
+			this.inputStream.close();
+			this.inputStream = null;
+		} catch (IOException e) {
+			completion.failure(urlConnection, e);
+		}
 	}
 	
 	@Override
-	public void complete(OperationState state) {
-		super.complete(state);
+	public synchronized void complete() {
+		super.complete();
 		
-		switch (state) {
+		switch (getState()) {
 			case Rejected:
 				completion.failure(urlConnection, new Throwable("Rejected"));
 				break;
@@ -87,12 +93,11 @@ public class HttpURLConnectionOperation extends BaseOperation {
 				completion.success(urlConnection, this.accumulationBuffer.toByteArray());
 				break;
 		}
+		
 		try {
 			this.accumulationBuffer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		OperationQueue.destroy();
+			this.accumulationBuffer = null;
+		} catch (IOException e) {}
+
 	}
 }

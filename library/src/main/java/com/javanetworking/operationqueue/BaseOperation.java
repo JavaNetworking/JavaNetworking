@@ -40,6 +40,10 @@ public class BaseOperation implements Operation {
 		return state;
 	}
 
-	public void execute() {}
-	public void complete(OperationState state) {}
+	public synchronized void execute() {
+		setState(OperationState.Running);
+	}
+	public synchronized void complete() {
+		setState(OperationState.Finished);
+	}
 }

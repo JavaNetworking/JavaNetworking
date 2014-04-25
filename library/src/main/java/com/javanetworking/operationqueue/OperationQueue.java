@@ -27,60 +27,73 @@ import com.javanetworking.operationqueue.Operation.OperationState;
 
 
 public class OperationQueue {
-	private static final OperationQueue instance = new OperationQueue();
-	private static final BlockingQueue<Operation> mainQueue = new LinkedBlockingQueue<Operation>();
+
+	private final BlockingQueue<Operation> mainQueue;
 	private Thread queueThread;
-	private boolean running = true;
+	private boolean running = false;
+	private final Object lock = new Object();
 	
-	public static void initialize() {
-		getInstance().start();
-	}
-
-	public static void destroy() {
-		getInstance().running = false;
-		getInstance().queueThread.interrupt();
-		mainQueue.clear();
+	public OperationQueue() {
+		this.mainQueue = new LinkedBlockingQueue<Operation>();
 	}
 	
-	public static OperationQueue getInstance() {
-		return instance;
+	public void cancelAllOperations() {
+		synchronized (lock) {
+			this.running = false;
+		}
+		this.queueThread.interrupt();
+		this.mainQueue.clear();
 	}
-
-	public static void addOperation(Operation operation) {
-
+	
+	public void addOperation(Operation operation) {
+		synchronized (lock) {
+			if (!this.running) {
+				start();
+			}
+		}
+		
 		if (mainQueue.offer(operation)) {
 			operation.setState(OperationState.InQueue);
 		} else {
 			operation.setState(OperationState.Rejected);
 		}
-
 	}
 	
-	public static void addOperations(List<Operation> operations) {
+	public boolean isEmpty() {
+		return mainQueue.isEmpty();
+	}
+	
+	public void addOperations(List<Operation> operations) {
 		for (Operation operation : operations) {
-			OperationQueue.addOperation(operation);
+			this.addOperation(operation);
 		}
 	}
-
+	
 	private void start() {
 		queueThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (running) {
+				synchronized (lock) {
+					OperationQueue.this.running = true;
 					
-					try {
-						Operation operation = null;
+					while (running) {
 						try {
-							operation = mainQueue.take();
-							operation.setState(OperationState.Running);
-							operation.execute();
-							operation.setState(OperationState.Finished);
-						} catch (Throwable t) {
-							System.out.println("Throwable: " + t);
-							operation.setState(OperationState.Cancelled);
+							Operation operation = null;
+							try {
+								operation = mainQueue.take();
+								operation.setState(OperationState.Running);
+								operation.execute();
+								operation.setState(OperationState.Finished);
+							} catch (Throwable t) {
+								operation.setState(OperationState.Cancelled);
+							}
+							operation.complete();
+						} catch (Throwable t) {}
+						
+						if (OperationQueue.this.mainQueue.isEmpty()) {
+							OperationQueue.this.running = false;
 						}
-						operation.complete(operation.getState());
-					} catch (Throwable t) {}
+					}
 				}
 			}
 		});
