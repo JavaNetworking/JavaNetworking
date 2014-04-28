@@ -41,7 +41,6 @@ public class HttpURLConnectionOperation extends BaseOperation {
 	
 	private HttpURLConnection urlConnection;
 	private Completion completion;
-	private InputStream inputStream;
 	private ByteArrayOutputStream accumulationBuffer;
 	
 	private HttpURLConnectionOperation(HttpURLConnection urlConnection, Completion completion) {
@@ -63,18 +62,20 @@ public class HttpURLConnectionOperation extends BaseOperation {
 		super.execute();
 		
 		try {
-			this.inputStream = urlConnection.getInputStream();
-			BufferedInputStream bin = new BufferedInputStream(this.inputStream);
+			InputStream is = urlConnection.getInputStream();
+			BufferedInputStream bin = new BufferedInputStream(is);
 			
 			int c;
 			while (-1 != (c = bin.read())) {
 				this.accumulationBuffer.write(c);
 			}
 			bin.close();
-			this.inputStream.close();
-			this.inputStream = null;
+			is.close();
+			
 		} catch (IOException e) {
-			completion.failure(urlConnection, e);
+			if (this.completion != null) {
+				this.completion.failure(this.urlConnection, e);
+			}
 		}
 	}
 	
@@ -84,13 +85,19 @@ public class HttpURLConnectionOperation extends BaseOperation {
 		
 		switch (getState()) {
 			case Rejected:
-				completion.failure(urlConnection, new Throwable("Rejected"));
+				if (this.completion != null) {
+					this.completion.failure(this.urlConnection, new Throwable("Rejected"));
+				}
 				break;
 			case Cancelled:
-				completion.failure(urlConnection, new Throwable("Cancelled"));
+				if (this.completion != null) {
+					this.completion.failure(this.urlConnection, new Throwable("Cancelled"));
+				}
 				break;
 			default:
-				completion.success(urlConnection, this.accumulationBuffer.toByteArray());
+				if (this.completion != null) {
+					this.completion.success(this.urlConnection, this.accumulationBuffer.toByteArray());
+				}
 				break;
 		}
 		
