@@ -17,10 +17,14 @@ JavaNetworking is an asynchronous java networking library.
 ```java
 String urlString = "https://api.github.com/search/repositories?q=tetris+language:assembly&sort=stars&order=desc";
 		
-URL url = new URL(urlString);
-HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+HttpURLConnection urlConnection;
+try {
+    urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
+} catch (IOException e) {
+    return;
+}
 
-HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationWithHttpURLConnection(connection, new Completion() {
+HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new Completion() {
 	@Override
 	public void failure(HttpURLConnection urlConnection, Throwable t) {
 		System.out.println("Throwable: " + t);
