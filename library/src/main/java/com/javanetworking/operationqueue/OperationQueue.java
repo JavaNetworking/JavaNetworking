@@ -30,26 +30,29 @@ public class OperationQueue {
 
 	private final BlockingQueue<Operation> mainQueue;
 	private Thread queueThread;
-	private boolean running = false;
-	private final Object lock = new Object();
+	private boolean runningStatus = false;
 	
 	public OperationQueue() {
 		this.mainQueue = new LinkedBlockingQueue<Operation>();
 	}
 	
+	public synchronized void setRunningStatus(boolean status) {
+		this.runningStatus = status;
+	}
+	
+	public synchronized boolean getRunningStatus() {
+		return this.runningStatus;
+	}
+	
 	public void cancelAllOperations() {
-		synchronized (lock) {
-			this.running = false;
-		}
+		setRunningStatus(false);
 		this.queueThread.interrupt();
 		this.mainQueue.clear();
 	}
 	
 	public void addOperation(Operation operation) {
-		synchronized (lock) {
-			if (!this.running) {
-				start();
-			}
+		if (getRunningStatus() != true) {
+			start();
 		}
 		
 		if (mainQueue.offer(operation)) {
@@ -73,28 +76,28 @@ public class OperationQueue {
 		queueThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (lock) {
-					OperationQueue.this.running = true;
-					
-					while (running) {
+				setRunningStatus(true);
+				
+				while (getRunningStatus()) {
+					try {
+						Operation operation = null;
 						try {
-							Operation operation = null;
-							try {
-								operation = mainQueue.take();
-								operation.setState(OperationState.Running);
-								operation.execute();
-								operation.setState(OperationState.Finished);
-							} catch (Throwable t) {
-								operation.setState(OperationState.Cancelled);
-							}
-							operation.complete();
-						} catch (Throwable t) {}
-						
-						if (OperationQueue.this.mainQueue.isEmpty()) {
-							OperationQueue.this.running = false;
+							operation = mainQueue.take();
+							operation.setState(OperationState.Running);
+							operation.execute();
+							operation.setState(OperationState.Finished);
+						} catch (Throwable t) {
+							operation.setState(OperationState.Cancelled);
 						}
+						operation.complete();
+					} catch (Throwable t) {}
+					
+					
+					if (OperationQueue.this.mainQueue.isEmpty()) {
+						setRunningStatus(false);
 					}
 				}
+				
 			}
 		});
 		queueThread.start();

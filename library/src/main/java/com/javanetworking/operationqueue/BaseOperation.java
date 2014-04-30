@@ -32,11 +32,11 @@ public class BaseOperation implements Operation {
 		return BaseOperation.class.getName();
 	}
 	
-	public void setState(OperationState state) {
+	public synchronized void setState(OperationState state) {
 		this.state = state;
 	}
 	
-	public OperationState getState() {
+	public synchronized OperationState getState() {
 		return state;
 	}
 
