@@ -20,91 +20,121 @@
 
 package com.javanetworking;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import com.javanetworking.operationqueue.BaseOperation;
-import com.javanetworking.operationqueue.OperationQueue;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-public class HttpURLConnectionOperation extends BaseOperation {
+public class HttpURLConnectionOperation extends URLConnectionOperation {
 	
-	public interface Completion {
-		void failure(HttpURLConnection urlConnection, Throwable t);
-		void success(HttpURLConnection urlConnection, byte[] responseData);
+	public interface HttpCompletion {
+		void failure(HttpURLConnection httpConnection, Throwable t);
+		void success(HttpURLConnection httpConnection, byte[] responseData);
 	}
 	
-	public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, Completion completion) {
-		return new HttpURLConnectionOperation(urlConnection, completion);
+	public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, HttpCompletion httpCompletion) {
+		return (HttpURLConnectionOperation) new HttpURLConnectionOperation(urlConnection, httpCompletion);
 	}
-	
-	private HttpURLConnection urlConnection;
-	private Completion completion;
-	private ByteArrayOutputStream accumulationBuffer;
-	
-	private HttpURLConnectionOperation(HttpURLConnection urlConnection, Completion completion) {
-		super();
-		
-		this.urlConnection = urlConnection;
-		this.completion = completion;
 
-		this.accumulationBuffer = new ByteArrayOutputStream();
-	}
+	private Error error;
 	
-	public void start() {
-		OperationQueue queue = new OperationQueue();
-		queue.addOperation(this);
-	}
+	public List<Integer> acceptableResponseCodes;
+	public List<String> acceptableContentTypes;
 	
-	@Override
-	public synchronized void execute() {
-		super.execute();
+	
+	private HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
+		super(urlConnection, null);
 		
+		super.setURLCompletion(completionWithHttpCompletion(completion));
+		
+		this.acceptableResponseCodes = range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
+		
+		this.error = null;
+	}
+	
+	private List<Integer> range(int start, int stop) {
+		List<Integer> range = new ArrayList<Integer>(stop-start);
+		
+		for (int i=0; i< stop-start; i++) {
+			range.add(start+i);
+		}
+		
+		return range;
+	}
+	
+	public Error getError() {
+		
+		if (!hasAcceptableStatusCode()) {
+			List<Integer> codes = this.acceptableResponseCodes;
+			this.error = new Error(String.format(Locale.getDefault(), "Expected response code in range %s, got %d", (String.format("[%d, %d]", codes.get(0), codes.get(codes.size()-1))), getResponseCode()));
+		}
+		
+		if (!hasAcceptableContenType()) {
+			this.error = new Error(String.format(Locale.getDefault(), "Expected content types %s, got %s", this.acceptableContentTypes, getContentType()));
+		}
+		
+		return this.error;
+	}
+	
+	private HttpURLConnection getHttpURLConnection() {
+		return (HttpURLConnection) getURLConnection();
+	}
+	
+	private int getResponseCode() {
 		try {
-			InputStream is = urlConnection.getInputStream();
-			BufferedInputStream bin = new BufferedInputStream(is);
-			
-			int c;
-			while (-1 != (c = bin.read())) {
-				this.accumulationBuffer.write(c);
-			}
-			bin.close();
-			is.close();
-			
+			return getHttpURLConnection().getResponseCode();
 		} catch (IOException e) {
-			if (this.completion != null) {
-				this.completion.failure(this.urlConnection, e);
-			}
+			return -1;
 		}
 	}
 	
-	@Override
-	public synchronized void complete() {
-		super.complete();
+	private boolean hasAcceptableStatusCode() {
 		
-		switch (getState()) {
-			case Rejected:
-				if (this.completion != null) {
-					this.completion.failure(this.urlConnection, new Throwable("Rejected"));
-				}
-				break;
-			case Cancelled:
-				if (this.completion != null) {
-					this.completion.failure(this.urlConnection, new Throwable("Cancelled"));
-				}
-				break;
-			default:
-				if (this.completion != null) {
-					this.completion.success(this.urlConnection, this.accumulationBuffer.toByteArray());
-				}
-				break;
+		if (this.acceptableResponseCodes.contains(getResponseCode())) {
+			return true;
 		}
 		
-		try {
-			this.accumulationBuffer.close();
-			this.accumulationBuffer = null;
-		} catch (IOException e) {}
-
+		return false;
+	}
+	
+	private String getContentType() {
+		return getURLConnection().getContentType();
+	}
+	
+	private boolean hasAcceptableContenType() {
+		
+		if (this.acceptableContentTypes != null) {
+			if (this.acceptableContentTypes.contains(getContentType()) != true) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	private URLCompletion completionWithHttpCompletion(final HttpCompletion completion) {
+		return new URLCompletion() {
+			@Override
+			public void failure(URLConnection urlConnection, Throwable t) {
+				if (completion != null) {
+					completion.failure(getHttpURLConnection(), t);
+				}
+			}
+			
+			@Override
+			public void success(URLConnection urlConnection, byte[] responseData) {
+				if (completion != null) {
+					Error error = getError();
+					if (error != null) {
+						completion.failure(getHttpURLConnection(), error);
+					} else {
+						completion.success(getHttpURLConnection(), responseData);
+					}
+				}
+			}
+		};
 	}
 }
