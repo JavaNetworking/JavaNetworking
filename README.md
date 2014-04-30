@@ -40,7 +40,7 @@ httpOperation.start();
 
 ## Credits
 
-JavaNetworking is based upon the popular iOS and OSX library [AFNetworking](http://afnetworking.com/)
+JavaNetworking is based upon the popular iOS and OSX library [AFNetworking](http://afnetworking.com/).
 
 ## License
 
