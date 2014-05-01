@@ -49,12 +49,12 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		
 		super.setURLCompletion(completionWithHttpCompletion(completion));
 		
-		this.acceptableResponseCodes = range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
+		this.acceptableResponseCodes = HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
 		
 		this.error = null;
 	}
 	
-	private List<Integer> range(int start, int stop) {
+	public static List<Integer> range(int start, int stop) {
 		List<Integer> range = new ArrayList<Integer>(stop-start);
 		
 		for (int i=0; i< stop-start; i++) {
