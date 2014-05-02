@@ -8,6 +8,12 @@ JavaNetworking is an asynchronous java networking library.
 
 ### Build
 
+#### Windows
+```cmd
+gradlew.bat build
+```
+
+#### Unix
 ```bash
 ./gradlew build
 ```
@@ -19,12 +25,12 @@ String urlString = "https://api.github.com/search/repositories?q=tetris+language
 		
 HttpURLConnection urlConnection;
 try {
-    urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
+  urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
 } catch (IOException e) {
-    return;
+  return;
 }
 
-HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new Completion() {
+HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new HttpCompletion() {
 	@Override
 	public void failure(HttpURLConnection urlConnection, Throwable t) {
 		System.out.println("Throwable: " + t);
