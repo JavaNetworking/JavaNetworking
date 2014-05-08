@@ -30,7 +30,7 @@ import com.javanetworking.operationqueue.Operation.OperationState;
 
 /**
  The {@link OperationsQueue} class handles the execution of {@link Operation} instances
- through a queue and executes them one by one in a separate thread.
+ through queues and executes them one by one in a separate working thread.
  */
 public class OperationQueue {
 
@@ -45,7 +45,7 @@ public class OperationQueue {
 	private Map<String, BlockingQueue<Operation>> queues;
 	
 	/**
-	 A {@link HashMap} instance which holds the {@link BlockingQueue} execution thread.
+	 A {@link HashMap} instance which holds the {@link BlockingQueue} execution threads.
 	 
 	 Every {@link BlockingQueue} gets its own thread with the same key identifier name which their operations
 	 are executed on.
@@ -53,37 +53,21 @@ public class OperationQueue {
 	private Map<String, Thread> queueThreads;
 	
 	/**
-	 A boolean value indicating the running status of the queueThread. When set to false the queueThread
-	 exits when current operation finishes.
+	 A {@link HashMap} instance which holds the worker thread statuses.
+	 
+	 When a queue is set to false the worker thread exits after the next operation is finished.
 	 */
-	private boolean runningStatus = false;
-	
-	
-	//--------------------------------------
-	// @name Public methods, queue interface
-	//--------------------------------------
+	private Map<String, Boolean> runningStatuses;
 
-	/**
-	 Set the running status of current execution thread.
-	 
-	 @param status A boolean value indication if the running status should be true or false
-	 			   if false the current execution thread will exit after the next operations
-	 			   finishes. 
-	 */
-	public synchronized void setRunningStatus(boolean status) {
-		this.runningStatus = status;
-	}
+	
+	//-------------------------------------------------------
+	// @name Public methods, {@link OperationQueue} interface
+	//-------------------------------------------------------
 	
 	/**
-	 Return the running status boolean value.
-	 
-	 @return A boolean value indicating the running status of the current execution thread.
-	 		 If false the execution thread has been stopped, and will be started if another operation
-	 		 is added to the current instance of the {@link OperationQueue}.
+	 Default constructor
 	 */
-	public synchronized boolean getRunningStatus() {
-		return this.runningStatus;
-	}
+	public OperationQueue() {}
 	
 	/**
 	 Cancel all waiting operations and clear operations queue. This method sets the running
@@ -91,7 +75,11 @@ public class OperationQueue {
 	 and exits before finally clearing the main queue for waiting operations.
 	 */
 	public void cancelAllOperations() {
-		setRunningStatus(false);
+		
+		Set<String> statusKeys = getRunningStatuses().keySet();
+		for (String key : statusKeys) {
+			setRunningStatus(key, false);
+		}
 		
 		Set<String> threadKeys = getThreads().keySet();
 		for (String key : threadKeys) {
@@ -122,7 +110,7 @@ public class OperationQueue {
 	}
 	
 	/**
-	 Adds and operation to a queue referenced by {@param key}. 
+	 Adds an operation to a queue referenced by {@param key}. 
 	 
 	 If the queue which is referenced by the {@param key} does not exist. The queue
 	 and a linked thread is created and the {@param operation} is added to the new
@@ -143,7 +131,7 @@ public class OperationQueue {
 		
 		// If current running status is false then start the working thread
 		Thread thread = getThreads().get(key);
-		if (getRunningStatus() != true) {
+		if (getRunningStatus(key) != true && !thread.isAlive()) {
 			thread.start();
 		}
 	}
@@ -267,11 +255,11 @@ public class OperationQueue {
 		return new Thread(new Runnable() {
 			@Override
 			public void run() {
-				setRunningStatus(true);
+				setRunningStatus(key, true);
 				
 				BlockingQueue<Operation> queue = getQueue(key);
 				
-				while (getRunningStatus()) {
+				while (getRunningStatus(key)) {
 					try {
 						Operation operation = null;
 						try {
@@ -287,10 +275,56 @@ public class OperationQueue {
 					
 					
 					if (queue.isEmpty()) {
-						setRunningStatus(false);
+						setRunningStatus(key, false);
 					}
 				}
 			}
 		});
+	}
+	
+	
+	//----------------------------------------------
+	// @name Working thread status handling
+	//----------------------------------------------
+	
+	/**
+	 Get the {@link HashMap} which holds the running statuses.
+	 
+	 @return A {@link HashMap} instance that holds the boolean values
+	 */
+	private Map<String, Boolean> getRunningStatuses() {
+		if (this.runningStatuses == null) {
+			this.runningStatuses = new HashMap<String, Boolean>();
+		}
+		return this.runningStatuses;
+	}
+	
+	/**
+	 Set the running status of execution threads.
+	 
+	 @param key A string key identifier name representing operation queue name. 
+	 @param status A boolean value indicating if the running status should be true or false.
+	 			   If false the execution threads will exit after the next operations finishes. 
+	 */
+	private synchronized void setRunningStatus(String key, boolean status) {
+		getRunningStatuses().put(key, status);
+	}
+	
+	/**
+	 Return the running status boolean value.
+	 
+	 If the running status is set to false, the working thread may be waiting for a new operation
+	 and not exit. It maybe waiting until it is interrupted/cancelled ({@see cancelAllOperations()}).
+	 
+	 @param key A string key identifier name representing operation queue name.
+	 @return A boolean value indicating the running status of the execution thread identified.
+	 */
+	private synchronized boolean getRunningStatus(String key) {
+		Boolean status = getRunningStatuses().get(key);
+		if (status == null) {
+			return false;
+		}
+		
+		return status;
 	}
 }
