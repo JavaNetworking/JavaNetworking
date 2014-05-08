@@ -20,7 +20,10 @@
 
 package com.javanetworking.operationqueue;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import com.javanetworking.operationqueue.Operation.OperationState;
@@ -32,37 +35,33 @@ import com.javanetworking.operationqueue.Operation.OperationState;
 public class OperationQueue {
 
 	/**
-	 A {@link BlockingQueue} instance which acts at the main queue that holds added operations.
+	 A string value that holds the main queue key identifier name.
 	 */
-	private final BlockingQueue<Operation> mainQueue;
+	private final String MAIN_QUEUE_KEY = "main_queue";
 
 	/**
-	 A {@link Thread} instance that takes and executes operations from the mainQueue.
+	 A {@link HashMap} instance which holds the operation queues for current {@link OperationQueue} instance.
 	 */
-	private Thread queueThread;
-
+	private Map<String, BlockingQueue<Operation>> queues;
+	
 	/**
-	 A boolean value inticating the running status of the queueThread. When set to false the queueThread
-	 exits when current operation finnishes.
+	 A {@link HashMap} instance which holds the {@link BlockingQueue} execution thread.
+	 
+	 Every {@link BlockingQueue} gets its own thread with the same key identifier name which their operations
+	 are executed on.
+	 */
+	private Map<String, Thread> queueThreads;
+	
+	/**
+	 A boolean value indicating the running status of the queueThread. When set to false the queueThread
+	 exits when current operation finishes.
 	 */
 	private boolean runningStatus = false;
 	
-  
-	//----------------------------------------
-	// @name Constructor and Instance creation
-	//----------------------------------------
-
-	/**
-	 Instantiate a new {@link OperationQueue} instance
-	 */
-	public OperationQueue() {
-		this.mainQueue = new LinkedBlockingQueue<Operation>();
-	}
 	
-	
-	//-----------------------------------
-	// @name Attribute and status methods
-	//-----------------------------------
+	//--------------------------------------
+	// @name Public methods, queue interface
+	//--------------------------------------
 
 	/**
 	 Set the running status of current execution thread.
@@ -93,28 +92,59 @@ public class OperationQueue {
 	 */
 	public void cancelAllOperations() {
 		setRunningStatus(false);
-		this.queueThread.interrupt();
-		this.mainQueue.clear();
+		
+		Set<String> threadKeys = getThreads().keySet();
+		for (String key : threadKeys) {
+			Thread t = getThreads().get(key);
+			t.interrupt();
+		}
+		
+		Set<String> queueKeys = getQueues().keySet();
+		for (String key : queueKeys) {
+			BlockingQueue<Operation> queue = getQueue(key);
+			queue.clear();
+		}
 	}
 	
 	/**
-	 Add {@link Operation} instance to the {@link OperationQueue} instance main queue. The {@linkplain}
-	 operations if offered to the main queue but can be rejected and not added to the queue. When 
+	 Add {@link Operation} instance to the {@link OperationQueue} instance main queue. The operations 
+	 is offered to the main queue but can be rejected and not added to the queue. When 
 	 rejected the {@link Operation} has the state of {@link OperationState.Rejected}. If the {@link Operation}
 	 is added to the queue the state is set to {@link OperationState.InQueue}.
 	 
 	 It the {@link OperationQueue}s running status is false. The execution thread is started and the running
 	 status is updated to true.
+	 
+	 @param operation The {@link Operation} instance which is added to the queue.
 	 */
 	public void addOperation(Operation operation) {
-		if (getRunningStatus() != true) {
-			start();
-		}
+		this.addOperationToQueueNamed(MAIN_QUEUE_KEY, operation);
+	}
+	
+	/**
+	 Adds and operation to a queue referenced by {@param key}. 
+	 
+	 If the queue which is referenced by the {@param key} does not exist. The queue
+	 and a linked thread is created and the {@param operation} is added to the new
+	 queue.
+	 
+	 @param key A string value that is the key identifier name of a Queue.
+	 @param operation The {@link Operation} instance which is added to the queue.
+	 */
+	public void addOperationToQueueNamed(String key, Operation operation) {
 		
-		if (mainQueue.offer(operation)) {
+		// Offer the operation to the operation queue
+		BlockingQueue<Operation> queue = getQueue(key);
+		if (queue.offer(operation)) {
 			operation.setState(OperationState.InQueue);
 		} else {
 			operation.setState(OperationState.Rejected);
+		}
+		
+		// If current running status is false then start the working thread
+		Thread thread = getThreads().get(key);
+		if (getRunningStatus() != true) {
+			thread.start();
 		}
 	}
 	
@@ -138,31 +168,114 @@ public class OperationQueue {
 	 		 has no waiting operations to execute.
 	 */
 	public boolean isEmpty() {
-		return mainQueue.isEmpty();
+		return this.isEmpty(MAIN_QUEUE_KEY);
 	}
 	
-
-	//----------------------------------------------
-	// @name Execution thread and operation handling
-	//----------------------------------------------
-
 	/**
-	 Private method to instantiate and start the queueThread which takes {@link Operation} objects
-	 from the main queue when they are ready. The {@link BlockingQueue}s {@code take()} method is
-	 used since it retrieves and removes the head of main queue, waiting if necessary until an element 
-	 becomes available.
+	 Check if the {@link OperationQueue}s queue named {@param key} is empty.
+	 
+	 @param key A string value representing a queue key identifier name.
+	 @return A boolean value indicating if the {@link OperationQueue} is empty. If true the {@link OperationQueue}
+	 		 has no waiting operations to execute.
 	 */
-	private void start() {
-		queueThread = new Thread(new Runnable() {
+	public boolean isEmpty(String key) {
+		return getQueue(key).isEmpty();
+	}
+	
+	//----------------------------------------------
+	// @name Queue handling
+	//----------------------------------------------
+	
+	/**
+	 Get a {@link BlockingQueue} by the key identifier name.
+	 
+	 If the queue references by {@param key} is null a new queue is instantiated.
+	 
+	 @param key A string value that is the key identifier name of the queue.
+	 
+	 @return A {@link BlockingQueue} instance which holds {@link Operation} instances.
+	 */
+	private synchronized BlockingQueue<Operation> getQueue(String key) {
+		BlockingQueue<Operation> queue = getQueues().get(key);
+		if (queue == null) {
+			queue = newQueueForKey(key);
+		}
+		return queue;
+	}
+	
+	/**
+	 Gets the queues {@link HashMap} which holds all the operation queues.
+	 
+	 If the queues reference is null a new {@link HashMap} is instantiated.
+	 
+	 @return A {@link Map} instance which holds the operation queues of this class.
+	 */
+	private Map<String, BlockingQueue<Operation>> getQueues() {
+		if (this.queues == null) {
+			this.queues = new HashMap<String, BlockingQueue<Operation>>();
+		}
+		return this.queues;
+	}
+	
+	/**
+	 Adds a new queue and worker thread with key identifier name {@param key}.
+	 
+	 @param key A string key identifier name which the queue and thread is identified by.
+	 
+	 @return A {@link BlockingQueue} instance which can hold {@link Operation} instances.
+	 */
+	private BlockingQueue<Operation> newQueueForKey(String key) {
+		
+		BlockingQueue<Operation> queue = new LinkedBlockingQueue<Operation>();
+		getQueues().put(key, queue);
+		
+		Thread t = newThreadForQueueKey(key);
+		getThreads().put(key, t);
+		
+		return queue;
+	}
+	
+	
+	//----------------------------------------------
+	// @name Thread and operation handling
+	//----------------------------------------------
+	
+	/**
+	 Gets the {@link OperationQueue}s thread {@link HashMap} that holds all the
+	 worker threads.
+	 
+	 If the threads map is null an new {@link HashMap} instance is created.
+	 
+	 @return A {@link Map} instance that holds the worker threads.
+	 */
+	private Map<String, Thread> getThreads() {
+		if (this.queueThreads == null) {
+			this.queueThreads = new HashMap<String, Thread>();
+		}
+		return this.queueThreads;
+	}
+	
+	/**
+	 Creates a new worker thread for the {@param key} identifier name.
+	 
+	 @param key A string value that identifies the {@link BlockingQueue} queue the
+	 			thread should take its {@link Operation}s from.
+	 			
+	 @return A thread instance which executes {@link Operation} instances.
+	 */
+	private Thread newThreadForQueueKey(final String key) {
+		return new Thread(new Runnable() {
 			@Override
 			public void run() {
 				setRunningStatus(true);
+				
+				BlockingQueue<Operation> queue = getQueue(key);
 				
 				while (getRunningStatus()) {
 					try {
 						Operation operation = null;
 						try {
-							operation = mainQueue.take();
+							operation = queue.take();
 							operation.setState(OperationState.Running);
 							operation.execute();
 							operation.setState(OperationState.Finished);
@@ -173,13 +286,11 @@ public class OperationQueue {
 					} catch (Throwable t) {}
 					
 					
-					if (OperationQueue.this.mainQueue.isEmpty()) {
+					if (queue.isEmpty()) {
 						setRunningStatus(false);
 					}
 				}
-				
 			}
 		});
-		queueThread.start();
 	}
 }
