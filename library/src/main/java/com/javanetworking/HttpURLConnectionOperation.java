@@ -44,10 +44,10 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	public List<String> acceptableContentTypes;
 	
 	
-	private HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
+	public HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
 		super(urlConnection, null);
 		
-		super.setURLCompletion(completionWithHttpCompletion(completion));
+		this.setHttpCompletion(completion);
 		
 		this.acceptableResponseCodes = HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
 		
@@ -76,6 +76,10 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		}
 		
 		return this.error;
+	}
+	
+	protected void setHttpCompletion(HttpCompletion completion) {
+		super.setURLCompletion(completionWithHttpCompletion(completion));
 	}
 	
 	private HttpURLConnection getHttpURLConnection() {
@@ -120,7 +124,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 			@Override
 			public void failure(URLConnection urlConnection, Throwable t) {
 				if (completion != null) {
-					completion.failure(getHttpURLConnection(), t);
+					completion.failure((HttpURLConnection)urlConnection, t);
 				}
 			}
 			
@@ -129,9 +133,9 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 				if (completion != null) {
 					Error error = getError();
 					if (error != null) {
-						completion.failure(getHttpURLConnection(), error);
+						completion.failure((HttpURLConnection)urlConnection, error);
 					} else {
-						completion.success(getHttpURLConnection(), responseData);
+						completion.success((HttpURLConnection)urlConnection, responseData);
 					}
 				}
 			}

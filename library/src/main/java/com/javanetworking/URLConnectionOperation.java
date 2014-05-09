@@ -75,7 +75,7 @@ public class URLConnectionOperation extends BaseOperation {
 	/**
 	 Sets the {@link URLCompletion} interface that responds to this operation.
 	 */
-	public void setURLCompletion(URLCompletion completion) {
+	protected void setURLCompletion(URLCompletion completion) {
 		this.completion = completion;
 	}
 	
@@ -97,6 +97,8 @@ public class URLConnectionOperation extends BaseOperation {
 		super.execute();
 		
 		try {
+			this.urlConnection.connect();
+			
 			InputStream is = urlConnection.getInputStream();
 			BufferedInputStream bin = new BufferedInputStream(is);
 			
