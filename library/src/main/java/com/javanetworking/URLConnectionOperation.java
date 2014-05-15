@@ -15,7 +15,7 @@ import com.javanetworking.operationqueue.OperationQueue;
 public class URLConnectionOperation extends BaseOperation {
 	
 	/**
-	 {@link URLCompletion} is {@link URLConnectionOperation} completion interface which indicates the
+	 {@link URLCompletion} is {@link URLConnectionOperation}s completion interface which indicates the
 	 {@link URLConnection} failed or succeeded.
 	 */
 	public interface URLCompletion {
@@ -52,6 +52,7 @@ public class URLConnectionOperation extends BaseOperation {
 	 This is the preferred constructor.
 	 
 	 @param urlConnection An open {@link URLConnection} to be used for network access.
+	 @param completion A {@link URLCompletion} instance that handles the completion interface methods.
 	 */
 	public URLConnectionOperation(URLConnection urlConnection, URLConnectionOperation.URLCompletion completion) {
 		super();
