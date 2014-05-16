@@ -57,7 +57,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	/**
 	 The list of acceptable response codes. Default values are 200 to 299.
 	 */
-//	public List<Integer> acceptableResponseCodes;
+	public List<Integer> acceptableResponseCodes;
 	
 	/**
 	 The list of acceptable content types. The list is empty by default.
@@ -78,6 +78,8 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 
 		this.setHttpCompletion(completion);
 
+		this.acceptableResponseCodes = HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
+		
 		this.error = null;
 	}
 	
@@ -122,7 +124,20 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @return A {@link List<Integer>} which contains the acceptable response codes for current connection. 
 	 */
 	protected List<Integer> getAcceptableResponseCodes() {
-		return HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
+		return this.acceptableResponseCodes;
+	}
+	
+	/**
+	 Add acceptable response codes to the existing list of accepted response codes.
+	 
+	 @param newResponseCodes A list of Integer values to be added to the list of already accepted response codes.
+	 */
+	protected void addAcceptableResponseCodes(List<Integer> newResponseCodes) {
+		List<Integer> currentResponseCodes = getAcceptableResponseCodes();
+		
+		for (Integer responseCode : newResponseCodes) {
+			currentResponseCodes.add(responseCode);
+		}
 	}
 	
 	/**
