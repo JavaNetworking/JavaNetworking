@@ -150,6 +150,19 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 	
 	/**
+	 Add acceptable content types to the existing list of accepted content types.
+
+	 @param newContentTypes A list of string values to be added to the list of acceptable content types.
+	 */
+	protected void addAcceptableContentTypes(List<String> newContentTypes) {
+		List<String> currentContentTypes = getAcceptableContentTypes();
+
+		for (String contentType : newContentTypes) {
+			currentContentTypes.add(contentType);
+		}
+	}
+
+	/**
 	 Method called before {@link HttpCompletion} interface returns. Generates an {@link Error}
 	 if unacceptable status code or unacceptable content type is detected. 
 	 
