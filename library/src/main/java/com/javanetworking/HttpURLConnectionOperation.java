@@ -50,7 +50,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 
 	/**
-	 The {@link Error} generated when response code or content type is unexspected values.
+	 The {@link Error} generated when response code or content type is unexpected values.
 	 */
 	private Error error;
 	
@@ -66,11 +66,11 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	
 	
 	/**
-	 Instansiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
+	 Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
 	 
-	 This is the preferred construtor.
+	 This is the preferred constructor.
 	 
-	 @param urlConnection An open {@link HttpURLConnection} to be used for http network access.
+	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
 	 @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
 	 */
 	public HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
@@ -104,7 +104,8 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	/**
 	 Generate string list from strings array.
 	 
-	 Helper method to get content type list from {@code HttpURLConnectionOperation.arrayToList(new String[] { "application/text", "application/json", "application/xml" })}
+	 Helper method to get content type list from {@code String[]}.
+	 Example: {@code HttpURLConnectionOperation.arrayToList(new String[] { "application/text", "application/json", "application/xml" })}
 	 
 	 @param strings The string array to be placed into the {@link List<String>}. 
 	 */
@@ -260,7 +261,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 Before the {@link HttpCompletion} interface returns on a {@link URLCompletion} success the
 	 {@code getError()} method is called to verify HTTP response code and content type.  
 	 
-	 @return A {@link URLCompletion} instance .
+	 @return A {@link URLCompletion} instance mapped to a {@link HttpCompletion} interface.
 	 */
 	private URLCompletion completionWithHttpCompletion(final HttpCompletion completion) {
 		return new URLCompletion() {
