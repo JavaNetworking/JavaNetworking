@@ -119,7 +119,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 	
 	/**
-	 Get acceptable response codes for request. Default values are set to 200 - 299.
+	 Get acceptable response codes for current connection. Default values are set to 200 - 299.
 	 
 	 @return A {@link List<Integer>} which contains the acceptable response codes for current connection. 
 	 */
@@ -141,6 +141,15 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 	
 	/**
+	 Get acceptable content types list for current connection. Default value is null.
+	 
+	 @return A {@link List<String>} which contains the acceptable content types for current connection.
+	 */
+	protected List<String> getAcceptableContentTypes() {
+		return this.acceptableContentTypes;
+	}
+	
+	/**
 	 Method called before {@link HttpCompletion} interface returns. Generates an {@link Error}
 	 if unacceptable status code or unacceptable content type is detected. 
 	 
@@ -154,7 +163,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		}
 		
 		if (!hasAcceptableContenType()) {
-			this.error = new Error(String.format(Locale.getDefault(), "Expected content types %s, got %s", this.acceptableContentTypes, getContentType()));
+			this.error = new Error(String.format(Locale.getDefault(), "Expected content types %s, got %s", getAcceptableContentTypes(), getContentType()));
 		}
 		
 		return this.error;
@@ -223,8 +232,8 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	private boolean hasAcceptableContenType() {
 		
-		if (this.acceptableContentTypes != null) {
-			if (this.acceptableContentTypes.contains(getContentType()) != true) {
+		if (getAcceptableContentTypes() != null) {
+			if (getAcceptableContentTypes().contains(getContentType()) != true) {
 				return false;
 			}
 		}
