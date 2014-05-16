@@ -57,7 +57,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	/**
 	 The list of acceptable response codes. Default values are 200 to 299.
 	 */
-	public List<Integer> acceptableResponseCodes;
+//	public List<Integer> acceptableResponseCodes;
 	
 	/**
 	 The list of acceptable content types. The list is empty by default.
@@ -77,8 +77,6 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		super(urlConnection, null);
 
 		this.setHttpCompletion(completion);
-
-		this.acceptableResponseCodes = HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
 
 		this.error = null;
 	}
@@ -119,6 +117,15 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 	
 	/**
+	 Get acceptable response codes for request. Default values are set to 200 - 299.
+	 
+	 @return A {@link List<Integer>} which contains the acceptable response codes for current connection. 
+	 */
+	protected List<Integer> getAcceptableResponseCodes() {
+		return HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
+	}
+	
+	/**
 	 Method called before {@link HttpCompletion} interface returns. Generates an {@link Error}
 	 if unacceptable status code or unacceptable content type is detected. 
 	 
@@ -127,7 +134,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	public Error getError() {
 		
 		if (!hasAcceptableResponseCode()) {
-			List<Integer> codes = this.acceptableResponseCodes;
+			List<Integer> codes = getAcceptableResponseCodes();
 			this.error = new Error(String.format(Locale.getDefault(), "Expected response code in range %s, got %d", (String.format("[%d, %d]", codes.get(0), codes.get(codes.size()-1))), getResponseCode()));
 		}
 		
@@ -175,8 +182,10 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	private boolean hasAcceptableResponseCode() {
 		
-		if (this.acceptableResponseCodes.contains(getResponseCode())) {
-			return true;
+		if (getAcceptableResponseCodes() != null) {
+			if (getAcceptableResponseCodes().contains(getResponseCode())) {
+				return true;
+			}
 		}
 		
 		return false;
