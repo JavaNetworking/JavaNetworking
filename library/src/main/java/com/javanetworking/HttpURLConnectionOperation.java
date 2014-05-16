@@ -75,16 +75,16 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	public HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
 		super(urlConnection, null);
-		
+
 		this.setHttpCompletion(completion);
-		
+
 		this.acceptableResponseCodes = HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE);
-		
+
 		this.error = null;
 	}
 	
 	/**
-	 An integer list generator which is used to generate acceptable response codes.
+	 Generates an integer list generator which is used to generate acceptable response codes.
 	 
 	 The list generated starts at the {@param start} value and stops at value {@param stop} - 1.
 	 
@@ -99,6 +99,23 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		}
 		
 		return range;
+	}
+	
+	/**
+	 Generate string list from strings array.
+	 
+	 Helper method to get content type list from {@code HttpURLConnectionOperation.arrayToList(new String[] { "application/text", "application/json", "application/xml" })}
+	 
+	 @param strings The string array to be placed into the {@link List<String>}. 
+	 */
+	public static List<String> arrayToList(String[] strings) {
+		List<String> stringList = new ArrayList<String>();
+		
+		for (String string : stringList) {
+			stringList.add(string);
+		}
+		
+		return stringList;
 	}
 	
 	/**
