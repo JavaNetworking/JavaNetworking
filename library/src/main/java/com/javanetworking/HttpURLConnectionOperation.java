@@ -192,9 +192,12 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	}
 	
 	/**
-	 Creates a {@link URLCompletion} from a {@link HttpCompletion}.
+	 Creates a {@link URLCompletion} interface mapped to a {@link HttpCompletion} interface.
 	 
-	 @return A {@link URLCompletion} instance.
+	 Before the {@link HttpCompletion} interface returns on a {@link URLCompletion} success the
+	 {@code getError()} method is called to verify HTTP response code and content type.  
+	 
+	 @return A {@link URLCompletion} instance .
 	 */
 	private URLCompletion completionWithHttpCompletion(final HttpCompletion completion) {
 		return new URLCompletion() {
