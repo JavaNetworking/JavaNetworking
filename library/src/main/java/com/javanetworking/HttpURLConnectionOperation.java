@@ -111,7 +111,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	public static List<String> arrayToList(String[] strings) {
 		List<String> stringList = new ArrayList<String>();
 		
-		for (String string : stringList) {
+		for (String string : strings) {
 			stringList.add(string);
 		}
 		
