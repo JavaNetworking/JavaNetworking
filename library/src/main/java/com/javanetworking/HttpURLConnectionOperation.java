@@ -252,13 +252,19 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	private boolean hasAcceptableContenType() {
 		
-		if (getAcceptableContentTypes() != null) {
-			if (getAcceptableContentTypes().contains(getContentType()) != true) {
-				return false;
+		List<String> contentTypes = getAcceptableContentTypes();
+		if (contentTypes != null) {
+
+			String currentContentType = getContentType();
+
+			for (String contentType : contentTypes) {
+				if (currentContentType.contains(contentType)) {
+					return true;
+				}
 			}
 		}
 		
-		return true;
+		return false;
 	}
 	
 	/**
