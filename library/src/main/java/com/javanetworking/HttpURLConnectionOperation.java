@@ -125,6 +125,9 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @return A {@link List<Integer>} which contains the acceptable response codes for current connection. 
 	 */
 	protected List<Integer> getAcceptableResponseCodes() {
+		if (this.acceptableContentTypes == null) {
+			this.acceptableContentTypes = new ArrayList<String>();
+		}
 		return this.acceptableResponseCodes;
 	}
 	
@@ -147,6 +150,9 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @return A {@link List<String>} which contains the acceptable content types for current connection.
 	 */
 	protected List<String> getAcceptableContentTypes() {
+		if (this.acceptableContentTypes == null) {
+			this.acceptableContentTypes = new ArrayList<String>();
+		}
 		return this.acceptableContentTypes;
 	}
 	
