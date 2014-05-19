@@ -97,16 +97,10 @@ public class ImageURLConnectionOperation extends HttpURLConnectionOperation {
 					completion.failure(httpConnection, t);
 				}
 			}
-			
 			@Override
 			public void success(HttpURLConnection httpConnection, byte[] responseData) {
 				if (completion != null) {
-					Error error = getError();
-					if (error != null) {
-						completion.failure(httpConnection, error);
-					} else {
-						completion.success(httpConnection, responseData);
-					}
+					completion.success(httpConnection, responseData);
 				}
 			}
 		};
