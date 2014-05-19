@@ -20,11 +20,11 @@ gradlew.bat build
 ./gradlew build
 ```
 
-### Download JSon string
+### Download JSON string
 
 ```java
 String urlString = "https://api.github.com/search/repositories?q=tetris+language:assembly&sort=stars&order=desc";
-		
+
 HttpURLConnection urlConnection;
 try {
   urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
@@ -32,15 +32,15 @@ try {
   return;
 }
 
-HttpURLConnectionOperation httpOperation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new HttpCompletion() {
-	@Override
-	public void failure(HttpURLConnection urlConnection, Throwable t) {
-		System.out.println("Throwable: " + t);
-	}
-	@Override
-	public void success(HttpURLConnection urlConnection, byte[] responseData) {
-		System.out.println("Response data:\n" + new String(responseData));
-	}
+JSONURLConnectionOperation httpOperation = JSONURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new JSONCompletion() {
+    @Override
+    public void failure(HttpURLConnection urlConnection, Throwable t) {
+        System.out.println("Throwable: " + t);
+    }
+    @Override
+    public void success(HttpURLConnection urlConnection, String responseData) {
+        System.out.println("Response data:\n" + responseData);
+    }
 });
 httpOperation.start();
 ```
