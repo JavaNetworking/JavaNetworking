@@ -2,6 +2,14 @@ apply plugin: 'java'
 
 defaultTasks 'clean'
 
+sourceSets {
+  main {
+    dependencies {
+      compile fileTree(dir: 'libs', include: '*.jar')
+    }
+  }
+}
+
 jar {
     baseName = 'JavaNetworking'
     version =  '0.0.3'
