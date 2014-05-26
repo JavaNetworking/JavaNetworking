@@ -2,7 +2,15 @@ apply plugin: 'java'
 
 defaultTasks 'clean'
 
+// Compile dependencies
+dependencies {
+  compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+// Include compiles dependencies and set jar name and version
 jar {
-    baseName = 'JavaNetworking'
-    version =  '0.0.3'
+  from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+
+  baseName = 'JavaNetworking'
+  version =  '0.0.4'
 }
