@@ -20,6 +20,11 @@ gradlew.bat build
 ./gradlew build
 ```
 
+#### Built JAR path
+```
+JavaNetworking/library/build/libs/JavaNetworking-*.*.*.jar
+```
+
 ### Download JSON string
 
 ```java
