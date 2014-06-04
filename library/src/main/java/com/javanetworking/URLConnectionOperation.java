@@ -57,7 +57,7 @@ public class URLConnectionOperation extends BaseOperation {
 	public URLConnectionOperation(URLConnection urlConnection, URLConnectionOperation.URLCompletion completion) {
 		super();
 
-		this.urlConnection = urlConnection;
+		setURLConnection(urlConnection);
 
 		setURLCompletion(completion);
 
@@ -71,6 +71,16 @@ public class URLConnectionOperation extends BaseOperation {
 	 */
 	public URLConnection getURLConnection() {
 		return this.urlConnection;
+	}
+
+	/**
+	 Sets the current {@link URLConnection}. Cannot be null.
+	 */
+	public void setURLConnection(URLConnection urlConnection) {
+		if (urlConnection == null) {
+			throw new NullPointerException();
+		}
+		this.urlConnection = urlConnection;
 	}
 
 	/**
