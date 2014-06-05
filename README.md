@@ -32,20 +32,20 @@ String urlString = "https://api.github.com/search/repositories?q=tetris+language
 
 HttpURLConnection urlConnection;
 try {
-  urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
+	urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
 } catch (IOException e) {
-  return;
+	return;
 }
 
 JSONURLConnectionOperation operation = JSONURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new JSONCompletion() {
-  @Override
-  public void failure(HttpURLConnection urlConnection, Throwable t) {
-    System.out.println("Throwable: " + t);
-  }
-  @Override
-  public void success(HttpURLConnection urlConnection, String responseData) {
-    System.out.println("Response data:\n" + responseData);
-  }
+	@Override
+	public void failure(HttpURLConnection urlConnection, Throwable t) {
+		System.out.println("Throwable: " + t);
+	}
+	@Override
+	public void success(HttpURLConnection urlConnection, String responseData) {
+		System.out.println("Response data:\n" + responseData);
+	}
 });
 operation.start();
 ```
@@ -65,7 +65,7 @@ try {
 ImageURLConnectionOperation operation = ImageURLConnectionOperation.operationWithHttpURLConnection(connection, new ImageCompletion() {
 	@Override
 	public void failure(HttpURLConnection urlConnection, Throwable t) {
-		System.out.println("Throwable: " + t);
+    	System.out.println("Throwable: " + t);
 	}
 	@Override
 	public void success(HttpURLConnection urlConnection, byte[] responseData) {
