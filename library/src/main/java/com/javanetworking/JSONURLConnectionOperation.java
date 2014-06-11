@@ -31,7 +31,14 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, JSONCompletion completion) {
 		return new JSONURLConnectionOperation(urlConnection, completion);
 	}
-	
+
+    /**
+     A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
+     */
+    public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, JSONCompletion completion) {
+        return new JSONURLConnectionOperation(urlConnection, requestBody, completion);
+    }
+
 	/**
 	 Instantiate this class and sets the {@link HttpURLConnection}, and the {@link JSONCompletion} interface.
 	 
@@ -41,10 +48,25 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	 @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
 	 */
 	public JSONURLConnectionOperation(HttpURLConnection urlConnection, JSONCompletion completion) {
-		super(urlConnection, null);
-		
-		this.setJSONCompletion(completion);
+		this(urlConnection, null, completion);
 	}
+
+    /**
+     Instantiate this class and sets the {@link HttpURLConnection}, and the {@link JSONCompletion} interface.
+
+     This is the preferred constructor.
+
+     @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
+     @param requestBody A string representation of POST/PUT HTTP request body.
+     @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
+     */
+    public JSONURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, JSONCompletion completion) {
+        super(urlConnection, requestBody, null);
+
+        urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf8");
+
+        this.setJSONCompletion(completion);
+    }
 	
 	/**
 	 Get acceptable content types list for current connection. Default values for {@link JSONURLConnectionOperation} is:
