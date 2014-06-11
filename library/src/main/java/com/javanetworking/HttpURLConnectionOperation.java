@@ -23,6 +23,7 @@ package com.javanetworking;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -74,14 +75,27 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
 	 */
 	public HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
-		super(urlConnection, null);
-
-		this.setHttpCompletion(completion);
-
-		addAcceptableResponseCodes(HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
-		
-		this.error = null;
+		this(urlConnection, null, completion);
 	}
+
+    /**
+     Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
+
+     This is the preferred constructor.
+
+     @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
+     @param requestBody A string representation of POST/PUT HTTP request body.
+     @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
+     */
+    public HttpURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, final HttpCompletion completion) {
+        super(urlConnection, requestBody, null);
+
+        this.setHttpCompletion(completion);
+
+        addAcceptableResponseCodes(HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
+
+        this.error = null;
+    }
 	
 	/**
 	 Generates an integer list generator which is used to generate acceptable response codes.

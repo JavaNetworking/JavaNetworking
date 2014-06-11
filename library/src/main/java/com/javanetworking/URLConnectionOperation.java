@@ -2,9 +2,12 @@ package com.javanetworking;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+
 import com.operationqueue.BaseOperation;
 import com.operationqueue.Operation;
 import com.operationqueue.OperationQueue;
@@ -26,8 +29,8 @@ public class URLConnectionOperation extends BaseOperation {
 	/**
 	 A static constructor method that creates and returns a {@link URLConnectionOperation} instance.
 	 */
-	public static URLConnectionOperation operationWithHttpURLConnection(URLConnection urlConnection, URLCompletion completion) {
-		return new URLConnectionOperation(urlConnection, completion);
+	public static URLConnectionOperation operationWithHttpURLConnection(URLConnection urlConnection, String requestBody, URLCompletion completion) {
+		return new URLConnectionOperation(urlConnection, requestBody, completion);
 	}
 
 	/**
@@ -45,6 +48,10 @@ public class URLConnectionOperation extends BaseOperation {
 	 */
 	private ByteArrayOutputStream accumulationBuffer;
 
+	/**
+	 HTTP request body string. Written to server UTF-8 encoded.
+	 */
+    private String requestBody;
 
 	/**
 	 Instantiates this class and sets the {@link URLConnection} to use, and the {@link URLCompletion} interface.
@@ -52,10 +59,13 @@ public class URLConnectionOperation extends BaseOperation {
 	 This is the preferred constructor.
 
 	 @param urlConnection An open {@link URLConnection} to be used for network access.
+     @param requestBody A string representation of POST/PUT HTTP request body.
 	 @param completion A {@link URLCompletion} instance that handles the completion interface methods.
 	 */
-	public URLConnectionOperation(URLConnection urlConnection, URLConnectionOperation.URLCompletion completion) {
+	public URLConnectionOperation(URLConnection urlConnection, String requestBody, URLConnectionOperation.URLCompletion completion) {
 		super();
+
+        setRequestBody(requestBody);
 
 		setURLConnection(urlConnection);
 
@@ -90,6 +100,10 @@ public class URLConnectionOperation extends BaseOperation {
 		this.completion = completion;
 	}
 
+    protected void setRequestBody(String requestBody) {
+        this.requestBody = requestBody;
+    }
+
 	/**
 	 Creates a new {@link OperationQueue} and adds this class which executes this operation.
 	 */
@@ -108,7 +122,15 @@ public class URLConnectionOperation extends BaseOperation {
 		super.execute();
 
 		try {
-			this.urlConnection.connect();
+            // Write requestBody if any
+            if (this.requestBody != null) {
+                this.urlConnection.setRequestProperty("charset", "utf-8");
+                this.urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(requestBody.getBytes().length));
+                this.urlConnection.setDoOutput(true);
+
+                this.urlConnection.getOutputStream().write(requestBody.getBytes(Charset.forName("UTF-8")));
+            }
+            this.urlConnection.connect();
 
 			InputStream is = urlConnection.getInputStream();
 			BufferedInputStream bin = new BufferedInputStream(is);
