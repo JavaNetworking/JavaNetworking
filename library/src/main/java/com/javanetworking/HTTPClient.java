@@ -2,8 +2,10 @@ package com.javanetworking;
 
 import com.operationqueue.OperationQueue;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class HTTPClient {
         if (baseURL.isEmpty()) {
             throw new IllegalArgumentException("baseURL connot be empty");
         }
+        if (!(baseURL.charAt(baseURL.length()-1) == '/')) {
+			baseURL = String.format("%s/", baseURL);
+		}
         this.baseURL = baseURL;
 
         stringEncoding = Charset.forName("UTF-8");
@@ -72,7 +77,11 @@ public class HTTPClient {
             return false;
         }
 
-        this.registeredOperationClassNames.set(0, operationClass.getSimpleName());
+        if (this.registeredOperationClassNames.size() == 0) {
+			this.registeredOperationClassNames.add(operationClass.getSimpleName());
+		} else {
+			this.registeredOperationClassNames.set(0, operationClass.getSimpleName());
+		}
 
         return true;
     }
@@ -131,8 +140,11 @@ public class HTTPClient {
 
 
     public static String encode(String input, Charset stringEncoding) {
-        StringBuilder resultStr = new StringBuilder();
-
+        if (input == null) {
+			return "";
+		}
+    	StringBuilder resultStr = new StringBuilder();
+        
         input = new String(Charset.forName(stringEncoding.name()).encode(input).array());
 
         for (char ch : input.toCharArray()) {
@@ -227,9 +239,15 @@ public class HTTPClient {
             }
 
             return urlConnection;
-        } catch (Exception e) {
-            return null;
-        }
+        } catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        return null;
     }
 
     public HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpURLConnectionOperation.HttpCompletion completion) {
@@ -237,14 +255,19 @@ public class HTTPClient {
         HttpURLConnectionOperation operation = null;
 
         for (String className : this.registeredOperationClassNames) {
-            try {
-                Class cl = Class.forName(className);
-                Constructor constructor = cl.getConstructor(HttpURLConnection.class, String.class, HttpURLConnectionOperation.HttpCompletion.class);
-                operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, requestBody, completion);
-                break;
-            } catch (Exception e) {
-                throw new NullPointerException(className + " class not found.");
-            }
+//            try {
+//                Class cl = Class.forName(className);
+//                Constructor constructor = cl.getConstructor(HttpURLConnection.class, String.class, HttpURLConnectionOperation.HttpCompletion.class);
+//                operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, requestBody, completion);
+//                break;
+//            } catch (Exception e) {
+//                throw new NullPointerException(className + " class not found.");
+//            }
+        	if (className.equalsIgnoreCase("JSONURLConnectionOperation")) {
+				operation = JSONURLConnectionOperation.operationWithHttpURLConnection(urlConnection, requestBody, completion);
+			} else {
+				operation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, requestBody, completion);
+			}
         }
         return operation;
     }
@@ -254,17 +277,7 @@ public class HTTPClient {
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
-/*
-    public void GET(String path, String JSONContent, HttpURLConnectionOperation.HttpCompletion completion) {
 
-        this.parameterEncoding = HTTPClientParameterEncoding.JSONParameterEncoding;
-
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, null);
-        HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, JSONContent, completion);
-        this.enqueueHttpURLConnectionOperation(operation);
-
-    }
-*/
     public void POST(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
         HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
