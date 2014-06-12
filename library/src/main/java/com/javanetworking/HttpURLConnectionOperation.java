@@ -50,6 +50,13 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 		return (HttpURLConnectionOperation) new HttpURLConnectionOperation(urlConnection, httpCompletion);
 	}
 
+    /**
+     A static constructor method that creates and returns a {@link HttpURLConnectionOperation} instance.
+     */
+    public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpCompletion httpCompletion) {
+        return (HttpURLConnectionOperation) new HttpURLConnectionOperation(urlConnection, requestBody, httpCompletion);
+    }
+
 	/**
 	 The {@link Error} generated when response code or content type is unexpected values.
 	 */

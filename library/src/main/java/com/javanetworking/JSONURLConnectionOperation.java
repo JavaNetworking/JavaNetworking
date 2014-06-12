@@ -3,8 +3,6 @@ package com.javanetworking;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
-
 /**
  {@link JSONURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading JSON content.
  
