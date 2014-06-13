@@ -231,7 +231,7 @@ public class HTTPClient {
                 urlConnection.setRequestProperty(key, this.defaultHeaders.get(key));
             }
 
-            if (parameters != null && (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT"))) {
+            if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
                 String charset = this.stringEncoding.name();
 
                 switch (this.parameterEncoding) {
@@ -246,13 +246,8 @@ public class HTTPClient {
             }
             
             return urlConnection;
-        } catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+        } catch (Exception e) {}
         
         return null;
     }
