@@ -273,7 +273,8 @@ public class HTTPClient {
 //                throw new NullPointerException(className + " class not found.");
 //            }
         	if (className.equalsIgnoreCase("JSONURLConnectionOperation")) {
-				operation = JSONURLConnectionOperation.operationWithHttpURLConnection(urlConnection, requestBody, completion);
+				operation = new JSONURLConnectionOperation(urlConnection, requestBody, null);
+				operation.setHttpCompletion(completion);
 			} else {
 				operation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, requestBody, completion);
 			}

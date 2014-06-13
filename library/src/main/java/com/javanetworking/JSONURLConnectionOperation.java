@@ -61,8 +61,6 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
     public JSONURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, JSONCompletion completion) {
         super(urlConnection, requestBody, null);
 
-        urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf8");
-
         this.setJSONCompletion(completion);
     }
 	
