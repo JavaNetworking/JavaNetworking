@@ -1,5 +1,6 @@
 package com.javanetworking;
 
+import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
 import com.operationqueue.OperationQueue;
 
 import java.io.IOException;
@@ -14,9 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by gard on 12/06/14.
- */
+
 public class HTTPClient {
 
     private String baseURL;
@@ -61,8 +60,11 @@ public class HTTPClient {
 
         this.defaultHeaders = new HashMap<String, String>();
 
-
-        this.setDefaultHeader("User-Agent", "JavaNetworking/0.0.5");
+        String javaCommand = System.getProperty("sun.java.command");
+        String osName = System.getProperty("os.name");
+        String osVersion = System.getProperty("os.version");
+        String javaVersion = System.getProperty("java.version");        
+        this.setDefaultHeader("User-Agent", String.format("%s (%s %s) Java/%s", javaCommand, osName, osVersion, javaVersion));
 
         this.operationQueue = new OperationQueue();
     }
@@ -216,7 +218,6 @@ public class HTTPClient {
             String parametersString = HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding);
 
             if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
-//                if (!urlString.substring(urlString.length() - 1).equalsIgnoreCase("?")) {
                 if (!urlString.contains("?")) {
                     urlString = String.format("%s?%s", urlString, parametersString);
                 } else {
@@ -243,9 +244,6 @@ public class HTTPClient {
                         break;
                 }
             }
-
-            System.out.println("urlConnection: " + urlConnection);
-            System.out.println("headerFields: " + urlConnection.getHeaderFields());
             
             return urlConnection;
         } catch (MalformedURLException e) {
@@ -259,48 +257,55 @@ public class HTTPClient {
         return null;
     }
 
-    public HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpURLConnectionOperation.HttpCompletion completion) {
+    public HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpCompletion completion) {
 
         HttpURLConnectionOperation operation = null;
 
         for (String className : this.registeredOperationClassNames) {
-//            try {
-//                Class cl = Class.forName(className);
-//                Constructor constructor = cl.getConstructor(HttpURLConnection.class, String.class, HttpURLConnectionOperation.HttpCompletion.class);
-//                operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, requestBody, completion);
-//                break;
-//            } catch (Exception e) {
-//                throw new NullPointerException(className + " class not found.");
-//            }
-        	if (className.equalsIgnoreCase("JSONURLConnectionOperation")) {
-				operation = new JSONURLConnectionOperation(urlConnection, requestBody, null);
-				operation.setHttpCompletion(completion);
-			} else {
+            try {
+                Class<?> cl = Class.forName("com.javanetworking."+className);
+                Constructor<?>[] constructors = cl.getConstructors();
+                
+                Class<?>[] paramsTypes = null;
+                for (Constructor<?> constructor : constructors) {
+                	paramsTypes = constructor.getParameterTypes();
+                	if (paramsTypes.length == 3) {
+                		break;
+					}
+				}
+                Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1], paramsTypes[2]);
+                operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, requestBody, null);
+                operation.setHttpCompletion(completion);
+                
+                break;
+                
+            } catch (Exception e) {
 				operation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, requestBody, completion);
+				break;
 			}
         }
         return operation;
     }
 
-    public void GET(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
+    public void GET(String path, Map<String, Object> parameters, HttpCompletion completion) {
         HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
-    public void POST(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
+    public void POST(String path, Map<String, Object> parameters, HttpCompletion completion) {
         HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("POST", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
-    public void PUT(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
+    public void PUT(String path, Map<String, Object> parameters, HttpCompletion completion) {
         HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
-    public void DELETE(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
+    public void DELETE(String path, Map<String, Object> parameters, HttpCompletion completion) {
         HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
