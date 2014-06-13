@@ -87,7 +87,7 @@ public class HTTPClient {
     }
 
     public void setDefaultHeader(String header, String value) {
-        this.defaultHeaders.put(header+":", value);
+        this.defaultHeaders.put(header, value);
     }
 
     protected void setParameterEncoding(HTTPClientParameterEncoding parameterEncoding) {
@@ -96,10 +96,16 @@ public class HTTPClient {
 
     public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (QueryStringPair pair : QueryStringPairsFromMap(parameters)) {
+        
+        List<QueryStringPair> paramPairs = QueryStringPairsFromMap(parameters);
+        for (int i=0; i<paramPairs.size(); i++) {
+        	QueryStringPair pair = paramPairs.get(i);
+        	
             stringBuilder.append(pair.URLEncodedStringValueWithEncoding(stringEncoding));
+            if (i!=paramPairs.size()-1) {
+            	stringBuilder.append('&');
+			}
         }
-
 
         return stringBuilder.toString();
     }
@@ -109,27 +115,27 @@ public class HTTPClient {
     }
 
     public static List<QueryStringPair> QueryStringPairsFromKeyAndValue(String key, Object value) {
-        List queryStringComponents = new ArrayList<QueryStringPair>();
+        List<QueryStringPair> queryStringComponents = new ArrayList<QueryStringPair>();
 
         if (value instanceof Map) {
-            Map map = (Map) value;
+            Map<String, ?> map = (Map<String, ?>) value;
 
             Set<String> nestedKeys = map.keySet();
             for (String nestedKey : nestedKeys) {
                 Object nestedValue = map.get(nestedKey);
                 if (nestedValue != null) {
-                    queryStringComponents.add(QueryStringPairsFromKeyAndValue((key != null) ? String.format("%s[%s]", key, nestedKey) : null, nestedValue));
+                    queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(((key != null) ? String.format("%s[%s]", key, nestedKey) : nestedKey), nestedValue));
                 }
             }
         } else if (value instanceof List) {
-            List<String> list = (List) value;
-            for (String nestedValue : list) {
-                queryStringComponents.add(QueryStringPairsFromKeyAndValue(String.format("%s[]", key), nestedValue));
+            List<?> list = (List<?>) value;
+            for (Object nestedValue : list) {
+                queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(String.format("%s[]", key), nestedValue));
             }
         } else if (value instanceof Set) {
-            Set set = (Set) value;
+            Set<?> set = (Set<?>) value;
             for (Object object : set) {
-                queryStringComponents.add(QueryStringPairsFromKeyAndValue(key, object));
+                queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(key, object));
             }
         } else {
             queryStringComponents.add(new QueryStringPair(key, value));
@@ -188,7 +194,7 @@ public class HTTPClient {
         }
 
         public String URLEncodedStringValueWithEncoding(Charset stringEncoding) {
-            if (this.value != null) {
+            if (this.value == null) {
                 return PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding);
             } else {
                 return String.format("%s=%s", PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding),
@@ -209,7 +215,7 @@ public class HTTPClient {
         try {
             String parametersString = HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding);
 
-            if (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE")) {
+            if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
 //                if (!urlString.substring(urlString.length() - 1).equalsIgnoreCase("?")) {
                 if (!urlString.contains("?")) {
                     urlString = String.format("%s?%s", urlString, parametersString);
@@ -224,7 +230,7 @@ public class HTTPClient {
                 urlConnection.setRequestProperty(key, this.defaultHeaders.get(key));
             }
 
-            if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
+            if (parameters != null && (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT"))) {
                 String charset = this.stringEncoding.name();
 
                 switch (this.parameterEncoding) {
@@ -238,6 +244,9 @@ public class HTTPClient {
                 }
             }
 
+            System.out.println("urlConnection: " + urlConnection);
+            System.out.println("headerFields: " + urlConnection.getHeaderFields());
+            
             return urlConnection;
         } catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -279,19 +288,19 @@ public class HTTPClient {
     }
 
     public void POST(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("POST", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
     public void PUT(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
     public void DELETE(String path, Map<String, Object> parameters, HttpURLConnectionOperation.HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
         HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, this.requestBody, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
