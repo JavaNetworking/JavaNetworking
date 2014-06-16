@@ -6,32 +6,28 @@ import javax.net.ssl.HttpsURLConnection;
 
 
 public class HttpsURLConnectionOperation extends HttpURLConnectionOperation {
-
-	public interface HttpsCompletion {
-		void failure(HttpsURLConnection httpConnection, Throwable t);
-		void success(HttpsURLConnection httpConnection, byte[] responseData);
-	}
 	
-	public static HttpsURLConnectionOperation operationWithHttpsURLConnection(HttpsURLConnection urlConnection, HttpsCompletion httpsCompletion) {
+	public static HttpsURLConnectionOperation operationWithHttpsURLConnection(HttpsURLConnection urlConnection, HttpCompletion httpsCompletion) {
 		return new HttpsURLConnectionOperation(urlConnection, httpsCompletion);
 	}
 	
 	HttpsURLConnection urlConnection;
 	
-	public HttpsURLConnectionOperation(HttpsURLConnection urlConnection, HttpsCompletion completion) {
+	public HttpsURLConnectionOperation(HttpsURLConnection urlConnection, HttpCompletion completion) {
 		super(urlConnection, null);
 		
 		this.urlConnection = urlConnection;
 		
-		super.setHttpCompletion(completionWithHttpsCompletion(completion));
+		super.setCompletion(completion);
 	}
 	
 	public HttpsURLConnection getHttpsURLConnection() {
 		return this.urlConnection;
 	}
 	
-	private HttpCompletion completionWithHttpsCompletion(final HttpsCompletion completion) {
-		return new HttpCompletion() {
+	@Override
+	protected void setCompletion(final HttpCompletion completion) {
+		super.setCompletion(new HttpCompletion() {
 			@Override
 			public void failure(HttpURLConnection urlConnection, Throwable t) {
 				if (completion != null) {
@@ -40,7 +36,7 @@ public class HttpsURLConnectionOperation extends HttpURLConnectionOperation {
 			}
 			
 			@Override
-			public void success(HttpURLConnection urlConnection, byte[] responseData) {
+			public void success(HttpURLConnection urlConnection, Object responseData) {
 				if (completion != null) {
 					Error error = getError();
 					if (error != null) {
@@ -50,7 +46,7 @@ public class HttpsURLConnectionOperation extends HttpURLConnectionOperation {
 					}
 				}
 			}
-		};
+		});
 	}
 	
 	@Override

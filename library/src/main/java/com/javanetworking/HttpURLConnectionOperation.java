@@ -23,7 +23,6 @@ package com.javanetworking;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +39,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	public interface HttpCompletion {
 		void failure(HttpURLConnection httpConnection, Throwable t);
-		void success(HttpURLConnection httpConnection, byte[] responseData);
+		void success(HttpURLConnection httpConnection, Object response);
 	}
 	
 	/**
@@ -97,7 +96,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
     public HttpURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, final HttpCompletion completion) {
         super(urlConnection, requestBody, null);
 
-        this.setHttpCompletion(completion);
+        this.setCompletion(completion);
 
         addAcceptableResponseCodes(HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
 
@@ -213,7 +212,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	/**
 	 Sets the {@link HttpCompletion} interface that responds to this operation.
 	 */
-	protected void setHttpCompletion(HttpCompletion completion) {
+	protected void setCompletion(HttpCompletion completion) {
 		super.setURLCompletion(completionWithHttpCompletion(completion));
 	}
 	
@@ -306,13 +305,13 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 			}
 			
 			@Override
-			public void success(URLConnection urlConnection, byte[] responseData) {
+			public void success(URLConnection urlConnection, byte[] response) {
 				if (completion != null) {
 					Error error = getError();
 					if (error != null) {
 						completion.failure((HttpURLConnection)urlConnection, error);
 					} else {
-						completion.success((HttpURLConnection)urlConnection, responseData);
+						completion.success((HttpURLConnection)urlConnection, response);
 					}
 				}
 			}

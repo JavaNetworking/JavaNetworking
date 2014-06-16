@@ -290,7 +290,7 @@ public class HTTPClient {
 				}
                 Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1], paramsTypes[2]);
                 operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, requestBody, null);
-                operation.setHttpCompletion(completion);
+                operation.setCompletion(completion);
                 
                 break;
                 

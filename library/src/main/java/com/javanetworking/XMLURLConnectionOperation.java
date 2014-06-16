@@ -1,9 +1,17 @@
 package com.javanetworking;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  {@link XMLURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading XML content.
@@ -14,20 +22,11 @@ import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
  - `text/xml`
  */
 public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
-
-	/**
-	 {@link XMLCompletion} is {@link XMLURLConnectionOperation}s completion interface
-	 which indicates if the {@link HttpURLConnection} failed or succeeded.
-	 */
-	public interface XMLCompletion {
-		void failure(HttpURLConnection httpConnection, Throwable t);
-		void success(HttpURLConnection httpConnection, String responseData);
-	}
 	
 	/**
 	 A static constructor method that creates and returns a {@link XMLURLConnectionOperation} instance.
 	 */
-	public static XMLURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, XMLCompletion completion) {
+	public static XMLURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, HttpCompletion completion) {
 		return new XMLURLConnectionOperation(urlConnection, completion);
 	}
 	
@@ -39,10 +38,10 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
 	 @param completion A {@link XMLCompletion} instance that handles the completion interface methods.
 	 */
-	public XMLURLConnectionOperation(HttpURLConnection urlConnection, XMLCompletion completion) {
+	public XMLURLConnectionOperation(HttpURLConnection urlConnection, HttpCompletion completion) {
 		super(urlConnection, null);
 		
-		this.setXMLCompletion(completion);
+		this.setCompletion(completion);
 	}
 	
 	/**
@@ -59,22 +58,13 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 	}
 	
 	/**
-	 Sets the {@link XMLCompletion} interface that responds to this operation.
-	 */
-	protected void setXMLCompletion(XMLCompletion completion) {
-		super.setHttpCompletion(completionWithXMLCompletion(completion));
-	}
-	
-	/**
-	 Creates a {@link HttpCompletion} interface mapped to an {@link XMLCompletion} interface.
+	 Sets the {@link HttpCompletion} interface that responds to this operation.
 	 
-	 Before the {@link XMLCompletion} interface returns on a {@link HttpCompletion} success the
-	 {@code getError()} method is called to verify HTTP response code and content type.
-	 
-	 @return A {@link HttpCompletion} instance mapped to a {@link XMLCompletion} interface.
+	 Parses the response data to {@link Document} object.
 	 */
-	private HttpCompletion completionWithXMLCompletion(final XMLCompletion completion) {
-		return new HttpCompletion() {
+	@Override
+	protected void setCompletion(final HttpCompletion completion) {
+		super.setCompletion(new HttpCompletion() {
 			@Override
 			public void failure(HttpURLConnection httpConnection, Throwable t) {
 				if (completion != null) {
@@ -82,11 +72,24 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 				}
 			}
 			@Override
-			public void success(HttpURLConnection httpConnection, byte[] responseData) {
+			public void success(HttpURLConnection httpConnection, Object responseData) {
 				if (completion != null) {
-					completion.success(httpConnection, new String(responseData));
+					
+					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder builder;
+					Document document = null;
+					
+					try {
+						builder = factory.newDocumentBuilder();
+						document = builder.parse(new InputSource(new StringReader(new String((byte[])responseData))));
+					} catch (ParserConfigurationException e) {
+					} catch (SAXException e) {
+					} catch (IOException e) {
+					}
+					
+					completion.success(httpConnection, document);
 				}
 			}
-		};
+		});
 	}
 }

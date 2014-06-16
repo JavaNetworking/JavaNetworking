@@ -3,6 +3,9 @@ package com.javanetworking;
 import java.net.HttpURLConnection;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
 /**
  {@link JSONURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading JSON content.
  
@@ -15,25 +18,16 @@ import java.util.List;
 public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 
 	/**
-	 {@link JSONCompletion} is {@link JSONURLConnectionOperation}s completion interface
-	 which indicates if the {@link HttpURLConnection} failed or succeeded.
-	 */
-	public interface JSONCompletion {
-		void failure(HttpURLConnection httpConnection, Throwable t);
-		void success(HttpURLConnection httpConnection, String responseData);
-	}
-	
-	/**
 	 A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
 	 */
-	public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, JSONCompletion completion) {
+	public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, HttpCompletion completion) {
 		return new JSONURLConnectionOperation(urlConnection, completion);
 	}
 
     /**
      A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
      */
-    public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, JSONCompletion completion) {
+    public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpCompletion completion) {
         return new JSONURLConnectionOperation(urlConnection, requestBody, completion);
     }
 
@@ -45,7 +39,7 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
 	 @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
 	 */
-	public JSONURLConnectionOperation(HttpURLConnection urlConnection, JSONCompletion completion) {
+	public JSONURLConnectionOperation(HttpURLConnection urlConnection, HttpCompletion completion) {
 		this(urlConnection, null, completion);
 	}
 
@@ -58,10 +52,10 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
      @param requestBody A string representation of POST/PUT HTTP request body.
      @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
      */
-    public JSONURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, JSONCompletion completion) {
+    public JSONURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, HttpCompletion completion) {
         super(urlConnection, requestBody, null);
 
-        this.setJSONCompletion(completion);
+        this.setCompletion(completion);
     }
 	
 	/**
@@ -79,22 +73,13 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	}
 	
 	/**
-	 Sets the {@link JSONCompletion} interface that responds to this operation.
-	 */
-	protected void setJSONCompletion(JSONCompletion completion) {
-		super.setHttpCompletion(completionWithJSONCompletion(completion));
-	}
-	
-	/**
-	 Creates a {@link HttpCompletion} interface mapped to an {@link JSONCompletion} interface.
+	 Sets the {@link HttpCompletion} interface that responds to this operation.
 	 
-	 Before the {@link JSONCompletion} interface returns on a {@link HttpCompletion} success the
-	 {@code getError()} method is called to verify HTTP response code and content type.
-	 
-	 @return A {@link HttpCompletion} instance mapped to a {@link JSONCompletion} interface.
+	 Parses the response to {@link JsonElement} object.
 	 */
-	private HttpCompletion completionWithJSONCompletion(final JSONCompletion completion) {
-		return new HttpCompletion() {
+	@Override
+	protected void setCompletion(final HttpCompletion completion) {
+		super.setCompletion(new HttpCompletion() {
 			@Override
 			public void failure(HttpURLConnection httpConnection, Throwable t) {
 				if (completion != null) {
@@ -102,11 +87,14 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 				}
 			}
 			@Override
-			public void success(HttpURLConnection httpConnection, byte[] responseData) {
+			public void success(HttpURLConnection httpConnection, Object response) {
 				if (completion != null) {
-					completion.success(httpConnection, new String(responseData));
+					
+					JsonElement jsonElement = new Gson().fromJson(new String((byte[])response), JsonElement.class);
+					
+					completion.success(httpConnection, jsonElement);
 				}
 			}
-		};
+		});
 	}
 }
