@@ -20,6 +20,13 @@
 
 package com.javanetworking;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
 import com.operationqueue.OperationQueue;
 
@@ -30,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +174,9 @@ public class HTTPClient {
         return queryStringComponents;
     }
 
+	public static String JsonStringFromMap(Map<String, Object> parameters) {
+		return new Gson().toJson(parameters);
+    }
 
     public static String encode(String input, Charset stringEncoding) {
         if (input == null) {
@@ -235,14 +246,8 @@ public class HTTPClient {
 
         HttpURLConnection urlConnection = null;
         try {
-            String parametersString = HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding);
-
             if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
-                if (!urlString.contains("?")) {
-                    urlString = String.format("%s?%s", urlString, parametersString);
-                } else {
-                    urlString = String.format("%s&%s", urlString, parametersString);
-                }
+            	urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding));
             }
 
             urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
@@ -257,10 +262,11 @@ public class HTTPClient {
                 switch (this.parameterEncoding) {
                     case FormURLParameterEncoding:
                         urlConnection.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charset));
-                        this.requestBody = parametersString;
+                        this.requestBody = HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding);
                         break;
                     case JSONParameterEncoding:
                         urlConnection.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charset));
+                        this.requestBody = HTTPClient.JsonStringFromMap(parameters);
                         break;
                 }
             }
