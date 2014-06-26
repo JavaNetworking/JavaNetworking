@@ -2,12 +2,9 @@ package com.javanetworking;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-
 import com.operationqueue.BaseOperation;
 import com.operationqueue.Operation;
 import com.operationqueue.OperationQueue;
@@ -29,7 +26,7 @@ public class URLConnectionOperation extends BaseOperation {
 	/**
 	 A static constructor method that creates and returns a {@link URLConnectionOperation} instance.
 	 */
-	public static URLConnectionOperation operationWithHttpURLConnection(URLConnection urlConnection, String requestBody, URLCompletion completion) {
+	public static URLConnectionOperation operationWithURLConnection(URLConnection urlConnection, String requestBody, URLCompletion completion) {
 		return new URLConnectionOperation(urlConnection, requestBody, completion);
 	}
 
@@ -124,11 +121,10 @@ public class URLConnectionOperation extends BaseOperation {
 		try {
             // Write requestBody if any
             if (this.requestBody != null) {
-                this.urlConnection.setRequestProperty("charset", "utf-8");
                 this.urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(requestBody.getBytes().length));
                 this.urlConnection.setDoOutput(true);
 
-                this.urlConnection.getOutputStream().write(requestBody.getBytes(Charset.forName("UTF-8")));
+                this.urlConnection.getOutputStream().write(requestBody.getBytes());
             }
             this.urlConnection.connect();
 
