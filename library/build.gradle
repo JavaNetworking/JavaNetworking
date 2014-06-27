@@ -2,9 +2,14 @@ apply plugin: 'java'
 
 defaultTasks 'clean'
 
+repositories {
+	mavenCentral()
+}
+
 // Compile dependencies
 dependencies {
   compile fileTree(dir: 'libs', include: '*.jar')
+  testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
 // Include compiles dependencies and set jar name and version
