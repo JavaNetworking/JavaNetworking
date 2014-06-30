@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 
 /**
  {@link JSONURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading JSON content.
@@ -90,9 +91,17 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 			public void success(HttpURLConnection httpConnection, Object response) {
 				if (completion != null) {
 					
-					JsonElement jsonElement = new Gson().fromJson(new String((byte[])response), JsonElement.class);
-					
-					completion.success(httpConnection, jsonElement);
+					try {
+						JsonElement jsonElement = new Gson().fromJson(new String((byte[])response), JsonElement.class);
+
+						if (completion != null) {
+							completion.success(httpConnection, jsonElement);
+						}
+					} catch(JsonSyntaxException e) {
+						if (completion != null) {
+							completion.failure(httpConnection, e);
+						}
+					}
 				}
 			}
 		});
