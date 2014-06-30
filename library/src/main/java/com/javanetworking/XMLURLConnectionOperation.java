@@ -80,12 +80,14 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 						DocumentBuilder builder = factory.newDocumentBuilder();
 						document = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+						if (completion != null) {
+							completion.success(httpConnection, document);
+						}
 					} catch (Exception e) {
-						System.err.println("Exception: " + e);
-					}
-					
-					if (completion != null) {
-						completion.success(httpConnection, document);
+						if (completion != null) {
+							completion.failure(httpConnection, e);
+						}
 					}
 				}
 			}
