@@ -1,17 +1,15 @@
 package com.javanetworking;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+
 
 /**
  {@link XMLURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading XML content.
@@ -75,19 +73,20 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 			public void success(HttpURLConnection httpConnection, Object responseData) {
 				if (completion != null) {
 					
-					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-					DocumentBuilder builder;
-					Document document = null;
+					String xmlContent = new String((byte[])responseData);
 					
+					Document document = null;
 					try {
-						builder = factory.newDocumentBuilder();
-						document = builder.parse(new InputSource(new StringReader(new String((byte[])responseData))));
-					} catch (ParserConfigurationException e) {
-					} catch (SAXException e) {
-					} catch (IOException e) {
+						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+						DocumentBuilder builder = factory.newDocumentBuilder();
+						document = builder.parse(new InputSource(new StringReader(xmlContent)));
+					} catch (Exception e) {
+						System.err.println("Exception: " + e);
 					}
 					
-					completion.success(httpConnection, document);
+					if (completion != null) {
+						completion.success(httpConnection, document);
+					}
 				}
 			}
 		});
