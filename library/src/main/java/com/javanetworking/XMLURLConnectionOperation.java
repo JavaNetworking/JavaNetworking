@@ -100,6 +100,7 @@ public class XMLURLConnectionOperation extends HttpURLConnectionOperation {
 						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 						DocumentBuilder builder = factory.newDocumentBuilder();
 						document = builder.parse(new InputSource(new StringReader(xmlContent)));
+						document.getDocumentElement().normalize();
 
 						if (completion != null) {
 							completion.success(httpConnection, document);
