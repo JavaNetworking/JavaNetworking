@@ -243,6 +243,7 @@ public class HTTPClient {
 
             urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
             urlConnection.setRequestMethod(method);
+            urlConnection.setConnectTimeout(500);
             for (String key : this.defaultHeaders.keySet()) {
                 urlConnection.setRequestProperty(key, this.defaultHeaders.get(key));
             }
