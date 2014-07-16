@@ -5,35 +5,36 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+
 import com.operationqueue.BaseOperation;
 import com.operationqueue.Operation;
 import com.operationqueue.OperationQueue;
 
 /**
- {@link URLConnectionOperation} is an extension of {@link BaseOperation} that implements the {@link Operation} interface.
+ {@link URLRequestRequest} is an extension of {@link BaseOperation} that implements the {@link Operation} interface.
  */
 public class URLConnectionOperation extends BaseOperation {
 
 	/**
-	 {@link URLCompletion} is {@link URLConnectionOperation}s completion interface which indicates the
-	 {@link URLConnection} failed or succeeded.
+	 {@link URLCompletion} is {@link URLRequestRequest}s completion interface which indicates the
+	 {@link URLRequest} failed or succeeded.
 	 */
 	public interface URLCompletion {
-		void failure(URLConnection urlConnection, Throwable t);
-		void success(URLConnection urlConnection, byte[] responseData);
+		void failure(URLRequest urlRequest, Throwable t);
+		void success(URLRequest urlRequest, byte[] responseData);
 	}
 
 	/**
-	 A static constructor method that creates and returns a {@link URLConnectionOperation} instance.
+	 A static constructor method that creates and returns a {@link URLRequestRequest} instance.
 	 */
-	public static URLConnectionOperation operationWithURLConnection(URLConnection urlConnection, String requestBody, URLCompletion completion) {
-		return new URLConnectionOperation(urlConnection, requestBody, completion);
+	public static URLConnectionOperation operationWithURLRequest(URLRequest urlRequest, URLCompletion completion) {
+		return new URLConnectionOperation(urlRequest, completion);
 	}
 
 	/**
-	 The URL connection which holds the request.
+	 The URL request.
 	 */
-	private URLConnection urlConnection;
+	private URLRequest urlRequest;
 
 	/**
 	 The instance completion interface.
@@ -46,25 +47,17 @@ public class URLConnectionOperation extends BaseOperation {
 	private ByteArrayOutputStream accumulationBuffer;
 
 	/**
-	 HTTP request body string. Written to server UTF-8 encoded.
-	 */
-    private String requestBody;
-
-	/**
-	 Instantiates this class and sets the {@link URLConnection} to use, and the {@link URLCompletion} interface.
+	 Instantiates this class and sets the {@link URLRequest} to use, and the {@link URLCompletion} interface.
 
 	 This is the preferred constructor.
 
-	 @param urlConnection An open {@link URLConnection} to be used for network access.
-     @param requestBody A string representation of POST/PUT HTTP request body.
-	 @param completion A {@link URLCompletion} instance that handles the completion interface methods.
+	 @param urlRequest An open {@link URLRequest} to be used for network access.
+     @param completion A {@link URLCompletion} instance that handles the completion interface methods.
 	 */
-	public URLConnectionOperation(URLConnection urlConnection, String requestBody, URLConnectionOperation.URLCompletion completion) {
+	public URLConnectionOperation(URLRequest urlRequest, URLCompletion completion) {
 		super();
 
-        setRequestBody(requestBody);
-
-		setURLConnection(urlConnection);
+		setURLRequest(urlRequest);
 
 		setURLCompletion(completion);
 
@@ -72,22 +65,22 @@ public class URLConnectionOperation extends BaseOperation {
 	}
 
 	/**
-	 Returns the current {@link URLConnection} used.
+	 Returns the current {@link URLRequest} used.
 
-	 @return The {@link URLConnection} of this operation.
+	 @return The {@link URLRequest} of this operation.
 	 */
-	public URLConnection getURLConnection() {
-		return this.urlConnection;
+	public URLRequest getURLRequest() {
+		return this.urlRequest;
 	}
 
 	/**
-	 Sets the current {@link URLConnection}. Cannot be null.
+	 Sets the current {@link URLRequest}. Cannot be null.
 	 */
-	public void setURLConnection(URLConnection urlConnection) {
-		if (urlConnection == null) {
+	public void setURLRequest(URLRequest urlRequest) {
+		if (urlRequest == null) {
 			throw new NullPointerException();
 		}
-		this.urlConnection = urlConnection;
+		this.urlRequest = urlRequest;
 	}
 
 	/**
@@ -96,10 +89,6 @@ public class URLConnectionOperation extends BaseOperation {
 	protected void setURLCompletion(URLCompletion completion) {
 		this.completion = completion;
 	}
-
-    protected void setRequestBody(String requestBody) {
-        this.requestBody = requestBody;
-    }
 
 	/**
 	 Creates a new {@link OperationQueue} and adds this class which executes this operation.
@@ -120,15 +109,14 @@ public class URLConnectionOperation extends BaseOperation {
 
 		try {
             // Write requestBody if any
-            if (this.requestBody != null) {
-                this.urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(requestBody.getBytes().length));
-                this.urlConnection.setDoOutput(true);
+            if (this.urlRequest.getHTTPBody() != null) {
+                this.urlRequest.setRequestProperty("Content-Length", "" + Integer.toString(this.urlRequest.getHTTPBody().length));
+                this.urlRequest.setDoOutput(true);
 
-                this.urlConnection.getOutputStream().write(requestBody.getBytes());
+                this.urlRequest.getOutputStream().write(this.urlRequest.getHTTPBody());
             }
-            this.urlConnection.connect();
-
-			InputStream is = urlConnection.getInputStream();
+            
+			InputStream is = urlRequest.getInputStream();
 			BufferedInputStream bin = new BufferedInputStream(is);
 
 			int c;
@@ -140,7 +128,7 @@ public class URLConnectionOperation extends BaseOperation {
 
 		} catch (IOException e) {
 			if (this.completion != null) {
-				this.completion.failure(this.urlConnection, e);
+				this.completion.failure(this.urlRequest, e);
 			}
 		}
 	}
@@ -155,17 +143,17 @@ public class URLConnectionOperation extends BaseOperation {
 		switch (getState()) {
 			case Rejected:
 				if (this.completion != null) {
-					this.completion.failure(this.urlConnection, new Throwable("URLConnectionOperation rejected from operation queue"));
+					this.completion.failure(this.urlRequest, new Throwable("URLRequestOperation rejected from operation queue"));
 				}
 				break;
 			case Cancelled:
 				if (this.completion != null) {
-					this.completion.failure(this.urlConnection, new Throwable("URLConnectionOperation cancelled in operation queue"));
+					this.completion.failure(this.urlRequest, new Throwable("URLRequestOperation cancelled in operation queue"));
 				}
 				break;
 			default:
 				if (this.completion != null) {
-					this.completion.success(this.urlConnection, this.accumulationBuffer.toByteArray());
+					this.completion.success(this.urlRequest, this.accumulationBuffer.toByteArray());
 				}
 				break;
 		}

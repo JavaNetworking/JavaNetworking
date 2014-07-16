@@ -21,7 +21,7 @@
 package com.javanetworking;
 
 import com.google.gson.Gson;
-import com.javanetworking.HttpURLConnectionOperation.HttpCompletion;
+import com.javanetworking.HttpURLRequestOperation.HttpCompletion;
 import com.operationqueue.OperationQueue;
 
 import java.lang.reflect.Constructor;
@@ -74,7 +74,7 @@ public class HTTPClient {
         parameterEncoding = HTTPClientParameterEncoding.FormURLParameterEncoding;
 
         this.registeredOperationClassNames = new ArrayList<String>();
-        this.registeredOperationClassNames.add(HttpURLConnectionOperation.class.getSimpleName());
+        this.registeredOperationClassNames.add(HttpURLRequestOperation.class.getSimpleName());
 
         this.defaultHeaders = new HashMap<String, String>();
 
@@ -93,7 +93,7 @@ public class HTTPClient {
     }
 
     public boolean registerHTTPOperationClass(Class<?> operationClass) {
-        if (operationClass.isAssignableFrom(HttpURLConnectionOperation.class)) {
+        if (operationClass.isAssignableFrom(HttpURLRequestOperation.class)) {
             return false;
         }
 
@@ -226,38 +226,48 @@ public class HTTPClient {
         }
     }
 
-    public void enqueueHttpURLConnectionOperation(HttpURLConnectionOperation operation) {
+    public void enqueueHttpURLConnectionOperation(HttpURLRequestOperation operation) {
         this.operationQueue.addOperation(operation);
     }
 
-    public HttpURLConnection connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
+    public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
 
         String urlString = String.format("%s%s", this.baseURL, path);
-
-        HttpURLConnection urlConnection = null;
-        try {
-        	// Add GET/HEAD/DELETE parameters to URL string
-            if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
-            	urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding));
-            }
-
-            urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
-            urlConnection.setRequestMethod(method);
-            urlConnection.setConnectTimeout(500);
-            for (String key : this.defaultHeaders.keySet()) {
-                urlConnection.setRequestProperty(key, this.defaultHeaders.get(key));
-            }
-
-            return urlConnection;
-
-        } catch (Exception e) {
-        	throw new NullPointerException("HttpURLConnection connot be null: " + e);
+        
+        // Add GET/HEAD/DELETE parameters to URL string
+        if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
+        	urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding));
         }
+        
+        URLRequest request = URLRequest.requestWithURLString(urlString);
+        request.setRequestMethod(method);
+        request.setConnectTimeout(500);
+        for (String key : this.defaultHeaders.keySet()) {
+        	request.setRequestProperty(key, this.defaultHeaders.get(key));
+        }
+        
+        // Set POST/PUT requestBody on operation 
+        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
+        	String charset = this.stringEncoding.name();
+
+            switch (this.parameterEncoding) {
+                case FormURLParameterEncoding:
+                	request.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charset));
+                    request.setHTTPBody(HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding).getBytes(this.stringEncoding));
+                    break;
+                case JSONParameterEncoding:
+                	request.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charset));
+                    request.setHTTPBody(HTTPClient.JsonStringFromMap(parameters).getBytes(this.stringEncoding));
+                    break;
+            }
+        }
+
+        return request;
     }
 
-    public HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, Map<String, Object> parameters, HttpCompletion completion) {
+    public HttpURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion completion) {
 
-        HttpURLConnectionOperation operation = null;
+        HttpURLRequestOperation operation = null;
 
         for (String className : this.registeredOperationClassNames) {
             try {
@@ -272,61 +282,41 @@ public class HTTPClient {
 					}
 				}
                 Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1]);
-                operation = (HttpURLConnectionOperation) constructor.newInstance(urlConnection, null);
+                operation = (HttpURLRequestOperation) constructor.newInstance(request, null);
                 operation.setCompletion(completion);
                 
                 break;
                 
             } catch (Exception e) {
-				operation = HttpURLConnectionOperation.operationWithHttpURLConnection(urlConnection, completion);
+				operation = HttpURLRequestOperation.operationWithURLRequest(request, completion);
 				break;
 			}
-        }
-        
-        // Set POST/PUT requestBody on operation 
-        String method = urlConnection.getRequestMethod();
-        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
-        	String requestBody = null;
-        	String charset = this.stringEncoding.name();
-
-            switch (this.parameterEncoding) {
-                case FormURLParameterEncoding:
-                    urlConnection.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charset));
-                    requestBody = HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding);
-                    break;
-                case JSONParameterEncoding:
-                    urlConnection.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charset));
-                    requestBody = HTTPClient.JsonStringFromMap(parameters);
-                    break;
-            }
-            
-            operation.setRequestBody(requestBody);
         }
         
         return operation;
     }
 
     public void GET(String path, Map<String, Object> parameters, HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("GET", path, parameters);
-        HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, null, completion);
+        URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
     public void POST(String path, Map<String, Object> parameters, HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("POST", path, null);
-        HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, parameters, completion);
+    	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
+        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
     public void PUT(String path, Map<String, Object> parameters, HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("PUT", path, null);
-        HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, parameters, completion);
+    	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
+        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 
     public void DELETE(String path, Map<String, Object> parameters, HttpCompletion completion) {
-        HttpURLConnection urlConnection = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
-        HttpURLConnectionOperation operation = this.operationWithHttpURLConnection(urlConnection, null, completion);
+    	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
+        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.enqueueHttpURLConnectionOperation(operation);
     }
 

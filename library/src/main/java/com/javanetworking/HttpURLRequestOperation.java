@@ -28,33 +28,27 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- {@link HttpURLConnectionOperation} is an extension of {@link URLConnectionOperation} and handles
+ {@link HttpURLRequestOperation} is an extension of {@link URLConnectionOperation} and handles
  HTTP validation of response codes and content types.
  */
-public class HttpURLConnectionOperation extends URLConnectionOperation {
+public class HttpURLRequestOperation extends URLConnectionOperation {
 	
 	/**
-	 {@link HttpCompletion} is {@link HttpURLConnectionOperation}s completion interface which indicates the
+	 {@link HttpCompletion} is {@link HttpURLRequestOperation}s completion interface which indicates the
 	 {@link URLConnection} failed or succeeded. 
 	 */
 	public interface HttpCompletion {
-		void failure(HttpURLConnection httpConnection, Throwable t);
-		void success(HttpURLConnection httpConnection, Object response);
+		void failure(URLRequest request, Throwable t);
+		void success(URLRequest request, Object response);
 	}
 	
 	/**
-	 A static constructor method that creates and returns a {@link HttpURLConnectionOperation} instance.
+	 A static constructor method that creates and returns a {@link HttpURLRequestOperation} instance.
 	 */
-	public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, HttpCompletion httpCompletion) {
-		return (HttpURLConnectionOperation) new HttpURLConnectionOperation(urlConnection, httpCompletion);
+	public static HttpURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion httpCompletion) {
+		return (HttpURLRequestOperation) new HttpURLRequestOperation(request, httpCompletion);
 	}
 
-    /**
-     A static constructor method that creates and returns a {@link HttpURLConnectionOperation} instance.
-     */
-    public static HttpURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpCompletion httpCompletion) {
-        return (HttpURLConnectionOperation) new HttpURLConnectionOperation(urlConnection, requestBody, httpCompletion);
-    }
 
 	/**
 	 The {@link Error} generated when response code or content type is unexpected values.
@@ -71,34 +65,21 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 */
 	public List<String> acceptableContentTypes = null;
 	
-	
-	/**
-	 Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
-	 
-	 This is the preferred constructor.
-	 
-	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-	 @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
-	 */
-	public HttpURLConnectionOperation(HttpURLConnection urlConnection, final HttpCompletion completion) {
-		this(urlConnection, null, completion);
-	}
 
     /**
      Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
 
      This is the preferred constructor.
 
-     @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-     @param requestBody A string representation of POST/PUT HTTP request body.
+     @param urlRequest An open {@link URLRequest} to be used for HTTP network access.
      @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
      */
-    public HttpURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, final HttpCompletion completion) {
-        super(urlConnection, requestBody, null);
+    public HttpURLRequestOperation(URLRequest urlRequest, final HttpCompletion completion) {
+        super(urlRequest, null);
 
         this.setCompletion(completion);
 
-        addAcceptableResponseCodes(HttpURLConnectionOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
+        addAcceptableResponseCodes(HttpURLRequestOperation.range(URLRequest.HTTP_OK, URLRequest.HTTP_MULT_CHOICE));
 
         this.error = null;
     }
@@ -222,7 +203,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @return The {@link HttpURLConnection} of this operation.
 	 */
 	private HttpURLConnection getHttpURLConnection() {
-		return (HttpURLConnection) getURLConnection();
+		return (HttpURLConnection) getURLRequest();
 	}
 	
 	/**
@@ -261,7 +242,7 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	 @return A string value indicating the connections HTTP content type.
 	 */
 	private String getContentType() {
-		return getURLConnection().getContentType();
+		return getURLRequest().getContentType();
 	}
 	
 	/**
@@ -298,20 +279,20 @@ public class HttpURLConnectionOperation extends URLConnectionOperation {
 	private URLCompletion completionWithHttpCompletion(final HttpCompletion completion) {
 		return new URLCompletion() {
 			@Override
-			public void failure(URLConnection urlConnection, Throwable t) {
+			public void failure(URLRequest request, Throwable t) {
 				if (completion != null) {
-					completion.failure((HttpURLConnection)urlConnection, t);
+					completion.failure(request, t);
 				}
 			}
 			
 			@Override
-			public void success(URLConnection urlConnection, byte[] response) {
+			public void success(URLRequest request, byte[] response) {
 				if (completion != null) {
 					Error error = getError();
 					if (error != null) {
-						completion.failure((HttpURLConnection)urlConnection, error);
+						completion.failure(request, error);
 					} else {
-						completion.success((HttpURLConnection)urlConnection, response);
+						completion.success(request, response);
 					}
 				}
 			}

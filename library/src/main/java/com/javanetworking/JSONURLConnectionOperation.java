@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
 /**
- {@link JSONURLConnectionOperation} is a {@link HttpURLConnectionOperation} subclass for downloading JSON content.
+ {@link JSONURLConnectionOperation} is a {@link HttpURLRequestOperation} subclass for downloading JSON content.
  
  By default {@link JSONURLConnectionOperation} accepts the following MIME content types:
  
@@ -16,32 +16,13 @@ import com.google.gson.JsonSyntaxException;
  - `text/json`
  - `text/javascript`
  */
-public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
+public class JSONURLConnectionOperation extends HttpURLRequestOperation {
 
 	/**
 	 A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
 	 */
-	public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, HttpCompletion completion) {
-		return new JSONURLConnectionOperation(urlConnection, completion);
-	}
-
-    /**
-     A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
-     */
-    public static JSONURLConnectionOperation operationWithHttpURLConnection(HttpURLConnection urlConnection, String requestBody, HttpCompletion completion) {
-        return new JSONURLConnectionOperation(urlConnection, requestBody, completion);
-    }
-
-	/**
-	 Instantiate this class and sets the {@link HttpURLConnection}, and the {@link JSONCompletion} interface.
-	 
-	 This is the preferred constructor.
-	 
-	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-	 @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
-	 */
-	public JSONURLConnectionOperation(HttpURLConnection urlConnection, HttpCompletion completion) {
-		this(urlConnection, null, completion);
+	public static JSONURLConnectionOperation operationWithHttpURLConnection(URLRequest request, HttpCompletion completion) {
+		return new JSONURLConnectionOperation(request, completion);
 	}
 
     /**
@@ -50,11 +31,10 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
      This is the preferred constructor.
 
      @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-     @param requestBody A string representation of POST/PUT HTTP request body.
      @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
      */
-    public JSONURLConnectionOperation(HttpURLConnection urlConnection, String requestBody, HttpCompletion completion) {
-        super(urlConnection, requestBody, null);
+    public JSONURLConnectionOperation(URLRequest request, HttpCompletion completion) {
+        super(request, null);
 
         this.setCompletion(completion);
     }
@@ -70,7 +50,7 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	 */
 	@Override
 	protected List<String> getAcceptableContentTypes() {
-		return HttpURLConnectionOperation.arrayToList(new String[] { "application/json", "text/json", "text/javascript" });
+		return HttpURLRequestOperation.arrayToList(new String[] { "application/json", "text/json", "text/javascript" });
 	}
 	
 	/**
@@ -82,24 +62,24 @@ public class JSONURLConnectionOperation extends HttpURLConnectionOperation {
 	protected void setCompletion(final HttpCompletion completion) {
 		super.setCompletion(new HttpCompletion() {
 			@Override
-			public void failure(HttpURLConnection httpConnection, Throwable t) {
+			public void failure(URLRequest request, Throwable t) {
 				if (completion != null) {
-					completion.failure(httpConnection, t);
+					completion.failure(request, t);
 				}
 			}
 			@Override
-			public void success(HttpURLConnection httpConnection, Object response) {
+			public void success(URLRequest request, Object response) {
 				if (completion != null) {
 					
 					try {
 						JsonElement jsonElement = new Gson().fromJson(new String((byte[])response), JsonElement.class);
 
 						if (completion != null) {
-							completion.success(httpConnection, jsonElement);
+							completion.success(request, jsonElement);
 						}
 					} catch(JsonSyntaxException e) {
 						if (completion != null) {
-							completion.failure(httpConnection, e);
+							completion.failure(request, e);
 						}
 					}
 				}
