@@ -79,7 +79,7 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 
         this.setCompletion(completion);
 
-        addAcceptableResponseCodes(HttpURLRequestOperation.range(URLRequest.HTTP_OK, URLRequest.HTTP_MULT_CHOICE));
+        addAcceptableResponseCodes(HttpURLRequestOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
 
         this.error = null;
     }
@@ -198,22 +198,13 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 	}
 	
 	/**
-	 Returns the {@link HttpURLConnection} used.
-	 
-	 @return The {@link HttpURLConnection} of this operation.
-	 */
-	private HttpURLConnection getHttpURLConnection() {
-		return (HttpURLConnection) getURLRequest();
-	}
-	
-	/**
 	 Returns this {@link HttpURLConnection}s responseCode.
 	 
 	 @return An integer value indications this connections response code.
 	 */
 	private int getResponseCode() {
 		try {
-			return getHttpURLConnection().getResponseCode();
+			return getURLRequest().getResponseCode();
 		} catch (IOException e) {
 			return -1;
 		}
