@@ -1,6 +1,8 @@
 package com.javanetworking;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -11,22 +13,20 @@ import java.security.cert.Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
-public class URLRequest extends HttpURLConnection {
+public class URLRequest {
 
+	private String url;
+	private URLConnection urlConnection;
 	private byte[] HTTPBody;
+
 	
 	public static URLRequest requestWithURLString(String url) {
-		HttpURLConnection request = null;
-		try {
-			request = (HttpURLConnection) new URL(url).openConnection();
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
-		return (URLRequest) request;
+		return new URLRequest(url);
 	}
 	
-	protected URLRequest(URL url) {
-		super(url);	
+	
+	public URLRequest(String url) {
+		this.url = url;
 	}
 	
 	public byte[] getHTTPBody() {
@@ -36,30 +36,55 @@ public class URLRequest extends HttpURLConnection {
 	public void setHTTPBody(byte[] hTTPBody) {
 		HTTPBody = hTTPBody;
 	}
+
+	public URLConnection getURLConnection() {
+		if (urlConnection == null) {
+			try {
+				urlConnection = new URL(this.url).openConnection();
+			} catch (MalformedURLException e) {
+				
+			} catch (IOException e) {
+				
+			}
+		}
+		return urlConnection;
+	}
 	
-	@Override
+	public HttpURLConnection getHttpURLConnection() {
+		return ((HttpURLConnection)getURLConnection());
+	}
+
+	public void setRequestProperty(String key, String value) {
+		getURLConnection().setRequestProperty(key, value);
+	}
+
+	public void setDoOutput(boolean b) {
+		getURLConnection().setDoOutput(b);
+	}
+
+	public ByteArrayOutputStream getOutputStream() throws IOException {
+		return (ByteArrayOutputStream) getURLConnection().getOutputStream();
+	}
+
+	public InputStream getInputStream() throws IOException {
+		return getURLConnection().getInputStream();
+	}
+
+	public int getResponseCode() throws IOException {
+		return getHttpURLConnection().getResponseCode();
+	}
+
+	public String getContentType() {
+		return getHttpURLConnection().getContentType();
+	}
+
 	public void setRequestMethod(String method) {
 		try {
-			super.setRequestMethod(method);
+			getHttpURLConnection().setRequestMethod(method);
 		} catch (ProtocolException e) {}
 	}
-	
-	@Override
-	public void disconnect() {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public boolean usingProxy() {
-		// TODO Auto-generated method stub
-		return false;
+	public void setConnectTimeout(int timeout) {
+		getHttpURLConnection().setReadTimeout(timeout);
 	}
-
-	@Override
-	public void connect() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
