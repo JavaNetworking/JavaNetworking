@@ -20,7 +20,7 @@
 
 package com.javanetworking;
 
-import com.google.gson.Gson;
+import com.javanetworking.gson.Gson;
 import com.javanetworking.HttpURLRequestOperation.HttpCompletion;
 import com.operationqueue.OperationQueue;
 

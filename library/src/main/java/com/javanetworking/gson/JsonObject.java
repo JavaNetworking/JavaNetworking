@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.javanetworking.gson.internal.LinkedTreeMap;
 
 import java.util.Map;
 import java.util.Set;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.LazilyParsedNumber;
+import com.javanetworking.gson.internal.$Gson$Preconditions;
+import com.javanetworking.gson.internal.LazilyParsedNumber;
 
 /**
  * A class representing a Json primitive value. A primitive value

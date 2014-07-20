@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.javanetworking.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
+import com.javanetworking.gson.internal.JsonReaderInternalAccess;
+import com.javanetworking.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -763,7 +763,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the next token, a {@link com.google.gson.stream.JsonToken#NAME property name}, and
+   * Returns the next token, a {@link com.javanetworking.gson.stream.JsonToken#NAME property name}, and
    * consumes it.
    *
    * @throws java.io.IOException if the next token in the stream is not a property
@@ -790,7 +790,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#STRING string} value of the next token,
+   * Returns the {@link com.javanetworking.gson.stream.JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
    * string form.
    *
@@ -826,7 +826,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#BOOLEAN boolean} value of the next token,
+   * Returns the {@link com.javanetworking.gson.stream.JsonToken#BOOLEAN boolean} value of the next token,
    * consuming it.
    *
    * @throws IllegalStateException if the next token is not a boolean or if
@@ -869,7 +869,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER double} value of the next token,
+   * Returns the {@link com.javanetworking.gson.stream.JsonToken#NUMBER double} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a double using {@link Double#parseDouble(String)}.
    *
@@ -912,7 +912,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
+   * Returns the {@link com.javanetworking.gson.stream.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a long. If the next token's numeric value cannot be exactly
    * represented by a Java {@code long}, this method throws.
@@ -1131,7 +1131,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER int} value of the next token,
+   * Returns the {@link com.javanetworking.gson.stream.JsonToken#NUMBER int} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as an int. If the next token's numeric value cannot be exactly
    * represented by a Java {@code int}, this method throws.

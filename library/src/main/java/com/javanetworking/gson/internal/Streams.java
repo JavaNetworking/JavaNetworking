@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.javanetworking.gson.internal;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
+import com.javanetworking.gson.JsonElement;
+import com.javanetworking.gson.JsonIOException;
+import com.javanetworking.gson.JsonNull;
+import com.javanetworking.gson.JsonParseException;
+import com.javanetworking.gson.JsonSyntaxException;
+import com.javanetworking.gson.internal.bind.TypeAdapters;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonWriter;
+import com.javanetworking.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;

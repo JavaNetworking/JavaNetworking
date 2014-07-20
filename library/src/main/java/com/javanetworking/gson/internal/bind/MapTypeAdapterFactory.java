@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.javanetworking.gson.internal.bind;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.javanetworking.gson.Gson;
+import com.javanetworking.gson.JsonElement;
+import com.javanetworking.gson.JsonPrimitive;
+import com.javanetworking.gson.JsonSyntaxException;
+import com.javanetworking.gson.TypeAdapter;
+import com.javanetworking.gson.TypeAdapterFactory;
+import com.javanetworking.gson.internal.$Gson$Types;
+import com.javanetworking.gson.internal.ConstructorConstructor;
+import com.javanetworking.gson.internal.JsonReaderInternalAccess;
+import com.javanetworking.gson.internal.ObjectConstructor;
+import com.javanetworking.gson.internal.Streams;
+import com.javanetworking.gson.reflect.TypeToken;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonToken;
+import com.javanetworking.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -60,9 +60,9 @@ import java.util.Map;
  * But GSON is unable to deserialize this value because the JSON string name is
  * just the {@link Object#toString() toString()} of the map key. Attempting to
  * convert the above JSON to an object fails with a parse exception:
- * <pre>com.google.gson.JsonParseException: Expecting object found: "(5,6)"
- *   at com.google.gson.JsonObjectDeserializationVisitor.visitFieldUsingCustomHandler
- *   at com.google.gson.ObjectNavigator.navigateClassFields
+ * <pre>com.javanetworking.gson.JsonParseException: Expecting object found: "(5,6)"
+ *   at com.javanetworking.gson.JsonObjectDeserializationVisitor.visitFieldUsingCustomHandler
+ *   at com.javanetworking.gson.ObjectNavigator.navigateClassFields
  *   ...</pre>
  *
  * <h3>Maps as JSON arrays</h3>

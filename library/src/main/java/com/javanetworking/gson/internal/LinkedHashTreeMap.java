@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.javanetworking.gson.internal;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;

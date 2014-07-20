@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.javanetworking.gson.internal.bind;
 
-import com.google.gson.TypeAdapterFactory;
+import com.javanetworking.gson.TypeAdapterFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,21 +35,21 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.LazilyParsedNumber;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.javanetworking.gson.Gson;
+import com.javanetworking.gson.JsonArray;
+import com.javanetworking.gson.JsonElement;
+import com.javanetworking.gson.JsonIOException;
+import com.javanetworking.gson.JsonNull;
+import com.javanetworking.gson.JsonObject;
+import com.javanetworking.gson.JsonPrimitive;
+import com.javanetworking.gson.JsonSyntaxException;
+import com.javanetworking.gson.TypeAdapter;
+import com.javanetworking.gson.annotations.SerializedName;
+import com.javanetworking.gson.internal.LazilyParsedNumber;
+import com.javanetworking.gson.reflect.TypeToken;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonToken;
+import com.javanetworking.gson.stream.JsonWriter;
 
 /**
  * Type adapters for basic types.

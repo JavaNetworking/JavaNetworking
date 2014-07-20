@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;

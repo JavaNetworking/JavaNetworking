@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.javanetworking.gson.stream;
 
 import java.io.IOException;
 

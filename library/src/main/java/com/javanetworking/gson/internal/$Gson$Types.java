@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.javanetworking.gson.internal;
 
-import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import static com.javanetworking.gson.internal.$Gson$Preconditions.checkArgument;
+import static com.javanetworking.gson.internal.$Gson$Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;

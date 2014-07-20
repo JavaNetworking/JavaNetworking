@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.javanetworking.gson.internal.$Gson$Preconditions;
+import com.javanetworking.gson.internal.Streams;
+import com.javanetworking.gson.reflect.TypeToken;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonWriter;
 import java.io.IOException;
 
 /**

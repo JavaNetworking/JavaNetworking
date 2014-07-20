@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.reflect;
+package com.javanetworking.gson.reflect;
 
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.$Gson$Preconditions;
+import com.javanetworking.gson.internal.$Gson$Types;
+import com.javanetworking.gson.internal.$Gson$Preconditions;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

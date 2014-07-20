@@ -3,9 +3,9 @@ package com.javanetworking;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSyntaxException;
+import com.javanetworking.gson.Gson;
+import com.javanetworking.gson.JsonElement;
+import com.javanetworking.gson.JsonSyntaxException;
 
 /**
  {@link JSONURLRequestOperation} is a {@link HttpURLRequestOperation} subclass for downloading JSON content.

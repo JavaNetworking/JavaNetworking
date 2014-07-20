@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
+import com.javanetworking.gson.internal.$Gson$Preconditions;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

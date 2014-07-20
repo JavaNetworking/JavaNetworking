@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.javanetworking.gson.stream;
 
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 
-import static com.google.gson.stream.JsonScope.DANGLING_NAME;
-import static com.google.gson.stream.JsonScope.EMPTY_ARRAY;
-import static com.google.gson.stream.JsonScope.EMPTY_DOCUMENT;
-import static com.google.gson.stream.JsonScope.EMPTY_OBJECT;
-import static com.google.gson.stream.JsonScope.NONEMPTY_ARRAY;
-import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
-import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
+import static com.javanetworking.gson.stream.JsonScope.DANGLING_NAME;
+import static com.javanetworking.gson.stream.JsonScope.EMPTY_ARRAY;
+import static com.javanetworking.gson.stream.JsonScope.EMPTY_DOCUMENT;
+import static com.javanetworking.gson.stream.JsonScope.EMPTY_OBJECT;
+import static com.javanetworking.gson.stream.JsonScope.NONEMPTY_ARRAY;
+import static com.javanetworking.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
+import static com.javanetworking.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)

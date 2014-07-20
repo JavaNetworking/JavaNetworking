@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
+import com.javanetworking.gson.internal.$Gson$Preconditions;
+import com.javanetworking.gson.internal.Excluder;
+import com.javanetworking.gson.internal.bind.TypeAdapters;
+import com.javanetworking.gson.reflect.TypeToken;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration
@@ -137,7 +137,7 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to exclude all fields from consideration for serialization or deserialization
-   * that do not have the {@link com.google.gson.annotations.Expose} annotation.
+   * that do not have the {@link com.javanetworking.gson.annotations.Expose} annotation.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    */

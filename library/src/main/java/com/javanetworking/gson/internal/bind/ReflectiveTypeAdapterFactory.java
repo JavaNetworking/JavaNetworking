@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package com.javanetworking.gson.internal.bind;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -22,22 +22,22 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.javanetworking.gson.FieldNamingStrategy;
+import com.javanetworking.gson.Gson;
+import com.javanetworking.gson.JsonSyntaxException;
+import com.javanetworking.gson.TypeAdapter;
+import com.javanetworking.gson.TypeAdapterFactory;
+import com.javanetworking.gson.annotations.JsonAdapter;
+import com.javanetworking.gson.annotations.SerializedName;
+import com.javanetworking.gson.internal.$Gson$Types;
+import com.javanetworking.gson.internal.ConstructorConstructor;
+import com.javanetworking.gson.internal.Excluder;
+import com.javanetworking.gson.internal.ObjectConstructor;
+import com.javanetworking.gson.internal.Primitives;
+import com.javanetworking.gson.reflect.TypeToken;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonToken;
+import com.javanetworking.gson.stream.JsonWriter;
 
 /**
  * Type adapter that reflects over the fields and methods of a class.

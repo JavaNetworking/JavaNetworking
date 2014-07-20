@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.annotations;
+package com.javanetworking.gson.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,10 +25,10 @@ import java.lang.annotation.Target;
  * An annotation that indicates this member should be serialized to JSON with
  * the provided name value as its field name.
  *
- * <p>This annotation will override any {@link com.google.gson.FieldNamingPolicy}, including
- * the default field naming policy, that may have been set on the {@link com.google.gson.Gson}
+ * <p>This annotation will override any {@link com.javanetworking.gson.FieldNamingPolicy}, including
+ * the default field naming policy, that may have been set on the {@link com.javanetworking.gson.Gson}
  * instance.  A different naming policy can set using the {@code GsonBuilder} class.  See
- * {@link com.google.gson.GsonBuilder#setFieldNamingPolicy(com.google.gson.FieldNamingPolicy)}
+ * {@link com.javanetworking.gson.GsonBuilder#setFieldNamingPolicy(com.javanetworking.gson.FieldNamingPolicy)}
  * for more information.</p>
  *
  * <p>Here is an example of how this annotation is meant to be used:</p>
@@ -58,7 +58,7 @@ import java.lang.annotation.Target;
  *
  * <p>NOTE: The value you specify in this annotation must be a valid JSON field name.</p>
  *
- * @see com.google.gson.FieldNamingPolicy
+ * @see com.javanetworking.gson.FieldNamingPolicy
  *
  * @author Inderjeet Singh
  * @author Joel Leitch

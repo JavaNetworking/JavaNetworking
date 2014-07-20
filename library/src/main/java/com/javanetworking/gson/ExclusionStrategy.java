@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
 /**
  * A strategy (or policy) definition that is used to decide whether or not a field or top-level

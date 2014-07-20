@@ -1,6 +1,6 @@
 /**
- * This package provides annotations that can be used with {@link com.google.gson.Gson}.
+ * This package provides annotations that can be used with {@link com.javanetworking.gson.Gson}.
  * 
  * @author Inderjeet Singh, Joel Leitch
  */
-package com.google.gson.annotations;
+package com.javanetworking.gson.annotations;

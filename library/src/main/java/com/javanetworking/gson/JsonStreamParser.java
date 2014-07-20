@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.javanetworking.gson;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -22,10 +22,10 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
+import com.javanetworking.gson.internal.Streams;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonToken;
+import com.javanetworking.gson.stream.MalformedJsonException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader

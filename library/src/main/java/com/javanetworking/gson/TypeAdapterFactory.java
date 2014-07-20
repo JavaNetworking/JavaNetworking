@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
-import com.google.gson.reflect.TypeToken;
+import com.javanetworking.gson.reflect.TypeToken;
 
 /**
  * Creates type adapters for set of related types. Type adapter factories are
@@ -80,7 +80,7 @@ import com.google.gson.reflect.TypeToken;
  * mapping from lowercase name to enum value is computed eagerly.
  *
  * <p>As with type adapters, factories must be <i>registered</i> with a {@link
- * com.google.gson.GsonBuilder} for them to take effect: <pre>   {@code
+ * com.javanetworking.gson.GsonBuilder} for them to take effect: <pre>   {@code
  *
  *  GsonBuilder builder = new GsonBuilder();
  *  builder.registerTypeAdapterFactory(new LowercaseEnumTypeAdapterFactory());

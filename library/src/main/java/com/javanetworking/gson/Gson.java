@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonTreeWriter;
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.SqlDateTypeAdapter;
-import com.google.gson.internal.bind.TimeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
+import com.javanetworking.gson.internal.ConstructorConstructor;
+import com.javanetworking.gson.internal.Excluder;
+import com.javanetworking.gson.internal.Primitives;
+import com.javanetworking.gson.internal.Streams;
+import com.javanetworking.gson.internal.bind.ArrayTypeAdapter;
+import com.javanetworking.gson.internal.bind.CollectionTypeAdapterFactory;
+import com.javanetworking.gson.internal.bind.DateTypeAdapter;
+import com.javanetworking.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
+import com.javanetworking.gson.internal.bind.JsonTreeReader;
+import com.javanetworking.gson.internal.bind.JsonTreeWriter;
+import com.javanetworking.gson.internal.bind.MapTypeAdapterFactory;
+import com.javanetworking.gson.internal.bind.ObjectTypeAdapter;
+import com.javanetworking.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import com.javanetworking.gson.internal.bind.SqlDateTypeAdapter;
+import com.javanetworking.gson.internal.bind.TimeTypeAdapter;
+import com.javanetworking.gson.internal.bind.TypeAdapters;
+import com.javanetworking.gson.reflect.TypeToken;
+import com.javanetworking.gson.stream.JsonReader;
+import com.javanetworking.gson.stream.JsonToken;
+import com.javanetworking.gson.stream.JsonWriter;
+import com.javanetworking.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
@@ -91,7 +91,7 @@ import java.util.Set;
  * <p>See the <a href="https://sites.google.com/site/gson/gson-user-guide">Gson User Guide</a>
  * for a more complete set of examples.</p>
  *
- * @see com.google.gson.reflect.TypeToken
+ * @see com.javanetworking.gson.reflect.TypeToken
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -168,10 +168,10 @@ public final class Gson {
    *   ignores the millisecond portion of the date during serialization. You can change
    *   this by invoking {@link GsonBuilder#setDateFormat(int)} or
    *   {@link GsonBuilder#setDateFormat(String)}. </li>
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation.
+   *   <li>By default, Gson ignores the {@link com.javanetworking.gson.annotations.Expose} annotation.
    *   You can enable Gson to serialize/deserialize only those fields marked with this annotation
    *   through {@link GsonBuilder#excludeFieldsWithoutExposeAnnotation()}. </li>
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Since} annotation. You
+   *   <li>By default, Gson ignores the {@link com.javanetworking.gson.annotations.Since} annotation. You
    *   can enable Gson to use this annotation through {@link GsonBuilder#setVersion(double)}.</li>
    *   <li>The default field naming policy for the output Json is same as in Java. So, a Java class
    *   field <code>versionNumber</code> will be output as <code>&quot;versionNumber&quot;</code> in
@@ -488,7 +488,7 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
-   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
+   * this type by using the {@link com.javanetworking.gson.reflect.TypeToken} class. For example,
    * to get the type for {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
@@ -530,7 +530,7 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
-   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
+   * this type by using the {@link com.javanetworking.gson.reflect.TypeToken} class. For example,
    * to get the type for {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
@@ -572,7 +572,7 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain
-   * this type by using the {@link com.google.gson.reflect.TypeToken} class. For example,
+   * this type by using the {@link com.javanetworking.gson.reflect.TypeToken} class. For example,
    * to get the type for {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
@@ -714,7 +714,7 @@ public final class Gson {
    * @param <T> the type of the desired object
    * @param json the string from which the object is to be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
-   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
+   * {@link com.javanetworking.gson.reflect.TypeToken} class. For example, to get the type for
    * {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
@@ -767,7 +767,7 @@ public final class Gson {
    * @param <T> the type of the desired object
    * @param json the reader producing Json from which the object is to be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
-   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
+   * {@link com.javanetworking.gson.reflect.TypeToken} class. For example, to get the type for
    * {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
@@ -866,7 +866,7 @@ public final class Gson {
    * @param json the root of the parse tree of {@link JsonElement}s from which the object is to
    * be deserialized
    * @param typeOfT The specific genericized type of src. You can obtain this type by using the
-   * {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for
+   * {@link com.javanetworking.gson.reflect.TypeToken} class. For example, to get the type for
    * {@code Collection<Foo>}, you should use:
    * <pre>
    * Type typeOfT = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();

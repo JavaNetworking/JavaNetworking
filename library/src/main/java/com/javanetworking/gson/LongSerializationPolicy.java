@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.javanetworking.gson;
 
 /**
  * Defines the expected format for a {@code long} or {@code Long} type when its serialized.

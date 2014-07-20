@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.gson.annotations;
+package com.javanetworking.gson.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.google.gson.TypeAdapter;
+import com.javanetworking.gson.TypeAdapter;
 
 /**
  * An annotation that indicates the Gson {@link TypeAdapter} to use with a class or a field.
- * Any type adapters registered in {@link com.google.gson.GsonBuilder} supersede the adapter
+ * Any type adapters registered in {@link com.javanetworking.gson.GsonBuilder} supersede the adapter
  * specified in this annotation.
  *
  * <p>Here is an example of how this annotation is used:</p>
@@ -62,7 +62,7 @@ import com.google.gson.TypeAdapter;
  * will automatically be invoked to serialize/deserialize User instances. <br>
  *
  * If the UserJsonAdapter needs a constructor other than a no-args constructor, you must register
- * an {@link com.google.gson.InstanceCreator} for it.
+ * an {@link com.javanetworking.gson.InstanceCreator} for it.
  *
  * <p> Here is an example of how to apply this annotation to a field.
  * <pre>
