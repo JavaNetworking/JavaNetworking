@@ -27,6 +27,8 @@ public class URLRequest {
 	
 	public URLRequest(String url) {
 		this.url = url;
+		this.urlConnection = null;
+		this.HTTPBody = null;
 	}
 	
 	public byte[] getHTTPBody() {
