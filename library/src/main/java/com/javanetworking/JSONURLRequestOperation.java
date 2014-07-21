@@ -77,7 +77,7 @@ public class JSONURLRequestOperation extends HttpURLRequestOperation {
 						if (completion != null) {
 							completion.success(request, jsonElement);
 						}
-					} catch(JsonSyntaxException e) {
+					} catch (Exception e) {
 						if (completion != null) {
 							completion.failure(request, e);
 						}
