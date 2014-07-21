@@ -92,6 +92,10 @@ public class HTTPClient {
         return String.format("<HTTPClient baseURL:%s>", this.baseURL);
     }
 
+    public OperationQueue getOperationQueue() {
+		return operationQueue;
+	}
+
     public boolean registerHTTPOperationClass(Class<?> operationClass) {
         if (operationClass.isAssignableFrom(HttpURLRequestOperation.class)) {
             return false;
