@@ -164,4 +164,16 @@ public class URLConnectionOperation extends BaseOperation {
 		} catch (IOException e) {}
 
 	}
+
+	/**
+	 The failure method is called when the operation failed in working thread.
+	 */
+	@Override
+	public synchronized void failure(Throwable t) {
+		super.failure(t);
+
+		if (this.completion != null) {
+			this.completion.failure(this.urlRequest, t);
+		}
+	}
 }
