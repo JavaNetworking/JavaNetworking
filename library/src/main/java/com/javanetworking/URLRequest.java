@@ -9,6 +9,8 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.Certificate;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -88,5 +90,9 @@ public class URLRequest {
 
 	public void setConnectTimeout(int timeout) {
 		getHttpURLConnection().setReadTimeout(timeout);
+	}
+
+	public Map<String, List<String>> getHeaderFields() {
+		return getHttpURLConnection().getHeaderFields();
 	}
 }
