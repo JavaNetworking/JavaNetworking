@@ -1,19 +1,16 @@
 package com.javanetworking;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLPeerUnverifiedException;
 
 public class URLRequest {
 
@@ -66,8 +63,8 @@ public class URLRequest {
 		getURLConnection().setDoOutput(b);
 	}
 
-	public ByteArrayOutputStream getOutputStream() throws IOException {
-		return (ByteArrayOutputStream) getURLConnection().getOutputStream();
+	public OutputStream getOutputStream() throws IOException {
+		return getURLConnection().getOutputStream();
 	}
 
 	public InputStream getInputStream() throws IOException {
