@@ -9,7 +9,7 @@ repositories {
 // Compile dependencies
 dependencies {
   compile fileTree(dir: 'libs', include: '*.jar')
-  testCompile group: 'junit', name: 'junit', version: '4.+'
+  testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
 // Include compiles dependencies and set jar name and version
