@@ -28,25 +28,25 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- {@link HttpURLRequestOperation} is an extension of {@link URLConnectionOperation} and handles
+ {@link HTTPURLRequestOperation} is an extension of {@link URLConnectionOperation} and handles
  HTTP validation of response codes and content types.
  */
-public class HttpURLRequestOperation extends URLConnectionOperation {
+public class HTTPURLRequestOperation extends URLConnectionOperation {
 	
 	/**
-	 {@link HttpCompletion} is {@link HttpURLRequestOperation}s completion interface which indicates the
+	 {@link HTTPCompletion} is {@link HTTPURLRequestOperation}s completion interface which indicates the
 	 {@link URLConnection} failed or succeeded. 
 	 */
-	public interface HttpCompletion {
+	public interface HTTPCompletion {
 		void failure(URLRequest request, Throwable t);
 		void success(URLRequest request, Object response);
 	}
 	
 	/**
-	 A static constructor method that creates and returns a {@link HttpURLRequestOperation} instance.
+	 A static constructor method that creates and returns a {@link HTTPURLRequestOperation} instance.
 	 */
-	public static HttpURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion httpCompletion) {
-		return (HttpURLRequestOperation) new HttpURLRequestOperation(request, httpCompletion);
+	public static HTTPURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion httpCompletion) {
+		return (HTTPURLRequestOperation) new HTTPURLRequestOperation(request, httpCompletion);
 	}
 
 
@@ -67,19 +67,19 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 	
 
     /**
-     Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HttpCompletion} interface.
+     Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HTTPCompletion} interface.
 
      This is the preferred constructor.
 
      @param urlRequest An open {@link URLRequest} to be used for HTTP network access.
-     @param completion A {@link HttpCompletion} instance that handles the completion interface methods.
+     @param completion A {@link HTTPCompletion} instance that handles the completion interface methods.
      */
-    public HttpURLRequestOperation(URLRequest urlRequest, final HttpCompletion completion) {
+    public HTTPURLRequestOperation(URLRequest urlRequest, final HTTPCompletion completion) {
         super(urlRequest, null);
 
         this.setCompletion(completion);
 
-        addAcceptableResponseCodes(HttpURLRequestOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
+        addAcceptableResponseCodes(HTTPURLRequestOperation.range(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_MULT_CHOICE));
 
         this.error = null;
     }
@@ -171,7 +171,7 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 	}
 
 	/**
-	 Method called before {@link HttpCompletion} interface returns. Generates an {@link Error}
+	 Method called before {@link HTTPCompletion} interface returns. Generates an {@link Error}
 	 if unacceptable status code or unacceptable content type is detected. 
 	 
 	 @return An {@link Error} instance if an error is detected otherwise null is returned.
@@ -191,9 +191,9 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 	}
 	
 	/**
-	 Sets the {@link HttpCompletion} interface that responds to this operation.
+	 Sets the {@link HTTPCompletion} interface that responds to this operation.
 	 */
-	protected void setCompletion(HttpCompletion completion) {
+	protected void setCompletion(HTTPCompletion completion) {
 		super.setURLCompletion(completionWithHttpCompletion(completion));
 	}
 	
@@ -260,14 +260,14 @@ public class HttpURLRequestOperation extends URLConnectionOperation {
 	}
 	
 	/**
-	 Creates a {@link URLCompletion} interface mapped to a {@link HttpCompletion} interface.
+	 Creates a {@link URLCompletion} interface mapped to a {@link HTTPCompletion} interface.
 	 
-	 Before the {@link HttpCompletion} interface returns on a {@link URLCompletion} success the
+	 Before the {@link HTTPCompletion} interface returns on a {@link URLCompletion} success the
 	 {@code getError()} method is called to verify HTTP response code and content type.  
 	 
-	 @return A {@link URLCompletion} instance mapped to a {@link HttpCompletion} interface.
+	 @return A {@link URLCompletion} instance mapped to a {@link HTTPCompletion} interface.
 	 */
-	private URLCompletion completionWithHttpCompletion(final HttpCompletion completion) {
+	private URLCompletion completionWithHttpCompletion(final HTTPCompletion completion) {
 		return new URLCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
