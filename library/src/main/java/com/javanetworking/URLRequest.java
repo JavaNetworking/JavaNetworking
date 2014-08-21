@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,7 +16,7 @@ public class URLRequest {
 	private String url;
 	private URLConnection urlConnection;
 	private byte[] HTTPBody;
-
+	private Exception error;
 	
 	public static URLRequest requestWithURLString(String url) {
 		return new URLRequest(url);
@@ -34,18 +33,16 @@ public class URLRequest {
 		return HTTPBody;
 	}
 
-	public void setHTTPBody(byte[] hTTPBody) {
-		HTTPBody = hTTPBody;
+	public void setHTTPBody(byte[] HTTPBody) {
+		this.HTTPBody = HTTPBody;
 	}
 
 	public URLConnection getURLConnection() {
 		if (urlConnection == null) {
 			try {
 				urlConnection = new URL(this.url).openConnection();
-			} catch (MalformedURLException e) {
-				
-			} catch (IOException e) {
-				
+			} catch (Exception e) {
+				this.error = e;
 			}
 		}
 		return urlConnection;
