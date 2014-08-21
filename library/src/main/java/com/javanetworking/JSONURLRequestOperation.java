@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.javanetworking.gson.Gson;
 import com.javanetworking.gson.JsonElement;
-import com.javanetworking.gson.JsonSyntaxException;
 
 /**
  {@link JSONURLRequestOperation} is a {@link HTTPURLRequestOperation} subclass for downloading JSON content.
