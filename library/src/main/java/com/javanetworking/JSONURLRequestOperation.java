@@ -8,7 +8,7 @@ import com.javanetworking.gson.JsonElement;
 import com.javanetworking.gson.JsonSyntaxException;
 
 /**
- {@link JSONURLRequestOperation} is a {@link HttpURLRequestOperation} subclass for downloading JSON content.
+ {@link JSONURLRequestOperation} is a {@link HTTPURLRequestOperation} subclass for downloading JSON content.
  
  By default {@link JSONURLRequestOperation} accepts the following MIME content types:
  
@@ -16,12 +16,12 @@ import com.javanetworking.gson.JsonSyntaxException;
  - `text/json`
  - `text/javascript`
  */
-public class JSONURLRequestOperation extends HttpURLRequestOperation {
+public class JSONURLRequestOperation extends HTTPURLRequestOperation {
 
 	/**
 	 A static constructor method that creates and returns a {@link JSONURLConnectionOperation} instance.
 	 */
-	public static JSONURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion completion) {
+	public static JSONURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 		return new JSONURLRequestOperation(request, completion);
 	}
 
@@ -33,7 +33,7 @@ public class JSONURLRequestOperation extends HttpURLRequestOperation {
      @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
      @param completion A {@link JSONCompletion} instance that handles the completion interface methods.
      */
-    public JSONURLRequestOperation(URLRequest request, HttpCompletion completion) {
+    public JSONURLRequestOperation(URLRequest request, HTTPCompletion completion) {
         super(request, null);
 
         this.setCompletion(completion);
@@ -50,17 +50,17 @@ public class JSONURLRequestOperation extends HttpURLRequestOperation {
 	 */
 	@Override
 	protected List<String> getAcceptableContentTypes() {
-		return HttpURLRequestOperation.arrayToList(new String[] { "application/json", "text/json", "text/javascript" });
+		return HTTPURLRequestOperation.arrayToList(new String[] { "application/json", "text/json", "text/javascript" });
 	}
 	
 	/**
-	 Sets the {@link HttpCompletion} interface that responds to this operation.
+	 Sets the {@link HTTPCompletion} interface that responds to this operation.
 	 
 	 Parses the response to {@link JsonElement} object.
 	 */
 	@Override
-	protected void setCompletion(final HttpCompletion completion) {
-		super.setCompletion(new HttpCompletion() {
+	protected void setCompletion(final HTTPCompletion completion) {
+		super.setCompletion(new HTTPCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
 				if (completion != null) {

@@ -3,7 +3,7 @@ package com.javanetworking;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-public class HttpURLConnectionOperationTests {
+public class HTTPURLConnectionOperationTest {
 	
 	@Test
 	public void testEquals() {

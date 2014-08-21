@@ -12,19 +12,19 @@ import org.xml.sax.InputSource;
 
 
 /**
- {@link XMLURLRequestOperation} is a {@link HttpURLRequestOperation} subclass for downloading XML content.
+ {@link XMLURLRequestOperation} is a {@link HTTPURLRequestOperation} subclass for downloading XML content.
  
  By default {@link XMLURLRequestOperation} accepts the following MIME content types:
  
  - `application/xml`
  - `text/xml`
  */
-public class XMLURLRequestOperation extends HttpURLRequestOperation {
+public class XMLURLRequestOperation extends HTTPURLRequestOperation {
 	
 	/**
 	 A static constructor method that creates and returns a {@link XMLURLRequestOperation} instance.
 	 */
-	public static XMLURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion completion) {
+	public static XMLURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 		return new XMLURLRequestOperation(request, completion);
 	}
 
@@ -36,7 +36,7 @@ public class XMLURLRequestOperation extends HttpURLRequestOperation {
 	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
 	 @param completion A {@link XMLCompletion} instance that handles the completion interface methods.
 	 */
-	public XMLURLRequestOperation(URLRequest request, HttpCompletion completion) {
+	public XMLURLRequestOperation(URLRequest request, HTTPCompletion completion) {
 		super(request, null);
 
 		this.setCompletion(completion);
@@ -52,17 +52,17 @@ public class XMLURLRequestOperation extends HttpURLRequestOperation {
 	 */
 	@Override
 	protected List<String> getAcceptableContentTypes() {
-		return HttpURLRequestOperation.arrayToList(new String[] { "application/xml", "text/xml" });
+		return HTTPURLRequestOperation.arrayToList(new String[] { "application/xml", "text/xml" });
 	}
 	
 	/**
-	 Sets the {@link HttpCompletion} interface that responds to this operation.
+	 Sets the {@link HTTPCompletion} interface that responds to this operation.
 	 
 	 Parses the response data to {@link Document} object.
 	 */
 	@Override
-	protected void setCompletion(final HttpCompletion completion) {
-		super.setCompletion(new HttpCompletion() {
+	protected void setCompletion(final HTTPCompletion completion) {
+		super.setCompletion(new HTTPCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
 				if (completion != null) {

@@ -5,7 +5,7 @@ import java.util.List;
 
 
 /**
- {@link ImageURLRequestOperation} is a {@link HttpURLRequestOperation} subclass for downloading images.
+ {@link ImageURLRequestOperation} is a {@link HTTPURLRequestOperation} subclass for downloading images.
  
  By default {@link ImageURLRequestOperation} accepts the following MIME content types:
  
@@ -20,12 +20,12 @@ import java.util.List;
  - `image/x-xbitmap`
  - `image/x-win-bitmap`
  */
-public class ImageURLRequestOperation extends HttpURLRequestOperation {
+public class ImageURLRequestOperation extends HTTPURLRequestOperation {
 
 	/**
 	 A static constructor method that creates and returns a {@link ImageURLRequestOperation} instance.
 	 */
-	public static ImageURLRequestOperation operationWithHttpURLConnection(URLRequest request, HttpCompletion completion) {
+	public static ImageURLRequestOperation operationWithHttpURLConnection(URLRequest request, HTTPCompletion completion) {
 		return new ImageURLRequestOperation(request, completion);
 	}
 	
@@ -37,7 +37,7 @@ public class ImageURLRequestOperation extends HttpURLRequestOperation {
 	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
 	 @param completion A {@link ImageCompletion} instance that handles the completion interface methods.
 	 */
-	public ImageURLRequestOperation(URLRequest request, HttpCompletion completion) {
+	public ImageURLRequestOperation(URLRequest request, HTTPCompletion completion) {
 		super(request, null);
 		
 		this.setCompletion(completion);
@@ -61,15 +61,15 @@ public class ImageURLRequestOperation extends HttpURLRequestOperation {
 	 */
 	@Override
 	protected List<String> getAcceptableContentTypes() {
-		return HttpURLRequestOperation.arrayToList(new String[] { "image/tiff", "image/jpeg", "image/gif", "image/png", "image/ico", "image/x-icon", "image/bmp", "image/x-bmp", "image/x-xbitmap", "image/x-win-bitmap" });
+		return HTTPURLRequestOperation.arrayToList(new String[] { "image/tiff", "image/jpeg", "image/gif", "image/png", "image/ico", "image/x-icon", "image/bmp", "image/x-bmp", "image/x-xbitmap", "image/x-win-bitmap" });
 	}
 	
 	/**
-	 Sets the {@link HttpCompletion} interface that responds to this operation.
+	 Sets the {@link HTTPCompletion} interface that responds to this operation.
 	 */
 	@Override
-	protected void setCompletion(final HttpCompletion completion) {
-		super.setCompletion(new HttpCompletion() {
+	protected void setCompletion(final HTTPCompletion completion) {
+		super.setCompletion(new HTTPCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
 				if (completion != null) {
