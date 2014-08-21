@@ -20,13 +20,11 @@
 
 package com.javanetworking;
 
+import com.javanetworking.HTTPURLRequestOperation.HTTPCompletion;
 import com.javanetworking.gson.Gson;
-import com.javanetworking.HttpURLRequestOperation.HttpCompletion;
 import com.operationqueue.OperationQueue;
 
 import java.lang.reflect.Constructor;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,30 +32,62 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ {@link HTTPClient} encapsulates the modern HTTP patterns used for data exchange.
+ */
 public class HTTPClient {
 
+	/**
+	 The URL used for constructing the URL request.
+	 */
     private String baseURL;
 
+    /**
+     The String encoding used in URL requests. Defaults to {@code Charset.forName("UTF-8")}
+     */
+    private Charset stringEncoding;
+
+    /**
+     {@link HTTPClientParameterEncoding} value indicate how HTTP body parameters are
+		encoded for requests other than 'GET', 'HEAD' and 'DELETE'.
+
+     Defaults to {@code HTTPClientParameterEncoding.FormURLParameterEncoding}
+     */
     public enum HTTPClientParameterEncoding {
         FormURLParameterEncoding,
         JSONParameterEncoding
     }
     private HTTPClientParameterEncoding parameterEncoding;
 
-    private Charset stringEncoding;
-
-    private Map<String, String> defaultHeaders;
-
+    /**
+     The {@link OperationQueue} used to handle enqueue {@link URLConnectionOperation}s for client.
+     */
     private OperationQueue operationQueue;
 
+    /**
+     {@link Map<String, String>} of default headers used when constructing HTTP requests.
+     */
+    private Map<String, String> defaultHeaders;
+
+    /**
+	 Attempts to register a subclasses of {@link HTTPURLRequestOperation}.
+	 
+	 Falls back to {@code HTTPURLRequestOperation.class}, if registering of operation class fails. 
+	 
+	 Defaults to {@code HTTPURLRequestOperation.class}.
+     */
     private List<String> registeredOperationClassNames;
 
+    /**
+     Static contructor.
+     */
     public static HTTPClient clientWithBaseURL(String baseURL) {
         return new HTTPClient(baseURL);
     }
 
-
+    /**
+     Default constructor.
+     */
     public HTTPClient(String baseURL) {
         if (baseURL == null) {
             throw new NullPointerException("baseURL cannot be null.");
@@ -74,7 +104,7 @@ public class HTTPClient {
         parameterEncoding = HTTPClientParameterEncoding.FormURLParameterEncoding;
 
         this.registeredOperationClassNames = new ArrayList<String>();
-        this.registeredOperationClassNames.add(HttpURLRequestOperation.class.getSimpleName());
+        this.registeredOperationClassNames.add(HTTPURLRequestOperation.class.getSimpleName());
 
         this.defaultHeaders = new HashMap<String, String>();
 
@@ -92,12 +122,15 @@ public class HTTPClient {
         return String.format("<HTTPClient baseURL:%s>", this.baseURL);
     }
 
+    /**
+     Gets the current clients {@link OperationQueue}.
+     */
     public OperationQueue getOperationQueue() {
 		return operationQueue;
 	}
 
     public boolean registerHTTPOperationClass(Class<?> operationClass) {
-        if (operationClass.isAssignableFrom(HttpURLRequestOperation.class)) {
+        if (operationClass.isAssignableFrom(HTTPURLRequestOperation.class)) {
             return false;
         }
 
@@ -230,7 +263,7 @@ public class HTTPClient {
         }
     }
 
-    public void enqueueHttpURLConnectionOperation(HttpURLRequestOperation operation) {
+    public void enqueueHTTPURLConnectionOperation(HTTPURLRequestOperation operation) {
         this.operationQueue.addOperation(operation);
     }
 
@@ -271,9 +304,9 @@ public class HTTPClient {
         return request;
     }
 
-    public HttpURLRequestOperation operationWithURLRequest(URLRequest request, HttpCompletion completion) {
+    public HTTPURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 
-        HttpURLRequestOperation operation = null;
+        HTTPURLRequestOperation operation = null;
 
         for (String className : this.registeredOperationClassNames) {
             try {
@@ -288,13 +321,13 @@ public class HTTPClient {
 					}
 				}
                 Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1]);
-                operation = (HttpURLRequestOperation) constructor.newInstance(request, null);
+                operation = (HTTPURLRequestOperation) constructor.newInstance(request, null);
                 operation.setCompletion(completion);
                 
                 break;
                 
             } catch (Exception e) {
-				operation = HttpURLRequestOperation.operationWithURLRequest(request, completion);
+				operation = HTTPURLRequestOperation.operationWithURLRequest(request, completion);
 				break;
 			}
         }
@@ -302,28 +335,28 @@ public class HTTPClient {
         return operation;
     }
 
-    public void GET(String path, Map<String, Object> parameters, HttpCompletion completion) {
+    public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
         URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
-        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHttpURLConnectionOperation(operation);
+        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+        this.enqueueHTTPURLConnectionOperation(operation);
     }
 
-    public void POST(String path, Map<String, Object> parameters, HttpCompletion completion) {
+    public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
-        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHttpURLConnectionOperation(operation);
+        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+        this.enqueueHTTPURLConnectionOperation(operation);
     }
 
-    public void PUT(String path, Map<String, Object> parameters, HttpCompletion completion) {
+    public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
-        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHttpURLConnectionOperation(operation);
+        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+        this.enqueueHTTPURLConnectionOperation(operation);
     }
 
-    public void DELETE(String path, Map<String, Object> parameters, HttpCompletion completion) {
+    public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
-        HttpURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHttpURLConnectionOperation(operation);
+        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+        this.enqueueHTTPURLConnectionOperation(operation);
     }
 
 }
