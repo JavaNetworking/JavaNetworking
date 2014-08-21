@@ -235,7 +235,9 @@ public class HTTPClient {
     }
 
     public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
-
+    	if (path.charAt(0) == '/') {
+			path = path.substring(1);
+		}
         String urlString = String.format("%s%s", this.baseURL, path);
         
         // Add GET/HEAD/DELETE parameters to URL string
