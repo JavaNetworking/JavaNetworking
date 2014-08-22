@@ -25,7 +25,7 @@ public class ImageURLRequestOperation extends HTTPURLRequestOperation {
 	/**
 	 A static constructor method that creates and returns a {@link ImageURLRequestOperation} instance.
 	 */
-	public static ImageURLRequestOperation operationWithHttpURLConnection(URLRequest request, HTTPCompletion completion) {
+	public static ImageURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 		return new ImageURLRequestOperation(request, completion);
 	}
 	
