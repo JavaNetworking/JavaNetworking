@@ -67,7 +67,7 @@ public class HTTPURLRequestOperation extends URLConnectionOperation {
 	
 
     /**
-     Instantiates this class and sets the {@link HttpURLConnection}, and the {@link HTTPCompletion} interface.
+     Instantiates this class and sets the {@link URLRequest}, and the {@link HTTPCompletion} interface.
 
      This is the preferred constructor.
 
@@ -194,11 +194,11 @@ public class HTTPURLRequestOperation extends URLConnectionOperation {
 	 Sets the {@link HTTPCompletion} interface that responds to this operation.
 	 */
 	protected void setCompletion(HTTPCompletion completion) {
-		super.setURLCompletion(completionWithHttpCompletion(completion));
+		super.setURLCompletion(completionWithHTTPCompletion(completion));
 	}
 	
 	/**
-	 Returns this {@link HttpURLConnection}s responseCode.
+	 Returns this {@link URLRequest}s responseCode.
 	 
 	 @return An integer value indications this connections response code.
 	 */
@@ -267,7 +267,7 @@ public class HTTPURLRequestOperation extends URLConnectionOperation {
 	 
 	 @return A {@link URLCompletion} instance mapped to a {@link HTTPCompletion} interface.
 	 */
-	private URLCompletion completionWithHttpCompletion(final HTTPCompletion completion) {
+	private URLCompletion completionWithHTTPCompletion(final HTTPCompletion completion) {
 		return new URLCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {

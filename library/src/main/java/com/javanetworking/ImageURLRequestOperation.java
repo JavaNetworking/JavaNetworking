@@ -1,6 +1,5 @@
 package com.javanetworking;
 
-import java.net.HttpURLConnection;
 import java.util.List;
 
 
@@ -30,12 +29,12 @@ public class ImageURLRequestOperation extends HTTPURLRequestOperation {
 	}
 	
 	/**
-	 Instantiate this class and sets the {@link HttpURLConnection}, and the {@link ImageCompletion} interface.
+	 Instantiate this class and sets the {@link URLRequest}, and the {@link HTTPCompletion} interface.
 	 
 	 This is the preferred constructor.
 	 
-	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-	 @param completion A {@link ImageCompletion} instance that handles the completion interface methods.
+	 @param urlConnection An open {@link URLRequest} to be used for HTTP network access.
+	 @param completion A {@link HTTPCompletion} instance that handles the completion interface methods.
 	 */
 	public ImageURLRequestOperation(URLRequest request, HTTPCompletion completion) {
 		super(request, null);
