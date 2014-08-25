@@ -10,19 +10,31 @@ JavaNetworking is an asynchronous java networking library.
 
 ### Build
 
-#### Windows
+##### Windows
 ```cmd
 gradlew.bat build
 ```
 
-#### Unix
+##### Unix
 ```bash
 ./gradlew build
 ```
 
-#### Built JAR path
+##### Built JAR path
 ```
 JavaNetworking/library/build/libs/JavaNetworking-*.*.*.jar
+```
+
+### Run tests
+
+##### Windows
+```cmd
+gradlew.bat test
+```
+
+##### Unix
+```bash
+./gradlew test
 ```
 
 ### Download JSON string
