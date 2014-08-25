@@ -246,6 +246,9 @@ public class HTTPURLRequestOperation extends URLConnectionOperation {
 		
 		List<String> contentTypes = getAcceptableContentTypes();
 		if (contentTypes != null) {
+			if (contentTypes.isEmpty()) {
+				return true;
+			}
 
 			String currentContentType = getContentType();
 
