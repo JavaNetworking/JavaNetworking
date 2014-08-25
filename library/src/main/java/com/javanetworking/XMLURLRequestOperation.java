@@ -1,7 +1,6 @@
 package com.javanetworking;
 
 import java.io.StringReader;
-import java.net.HttpURLConnection;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,12 +28,12 @@ public class XMLURLRequestOperation extends HTTPURLRequestOperation {
 	}
 
 	/**
-	 Instantiate this class and sets the {@link HttpURLConnection}, and the {@link XMLCompletion} interface.
+	 Instantiate this class and sets the {@link URLRequest}, and the {@link HTTPCompletion} interface.
 
 	 This is the preferred constructor.
 
-	 @param urlConnection An open {@link HttpURLConnection} to be used for HTTP network access.
-	 @param completion A {@link XMLCompletion} instance that handles the completion interface methods.
+	 @param urlConnection An open {@link URLRequest} to be used for HTTP network access.
+	 @param completion A {@link HTTPCompletion} instance that handles the completion interface methods.
 	 */
 	public XMLURLRequestOperation(URLRequest request, HTTPCompletion completion) {
 		super(request, null);
