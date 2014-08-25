@@ -42,22 +42,17 @@ gradlew.bat test
 ```java
 String urlString = "https://api.github.com/search/repositories?q=tetris+language:assembly&sort=stars&order=desc";
 
-HttpURLConnection urlConnection;
-try {
-	urlConnection = (HttpURLConnection) new URL(urlString).openConnection();
-} catch (IOException e) {
-	return;
-}
+URLRequest request = URLRequest.requestWithURLString(urlString);
 
-JSONURLConnectionOperation operation = JSONURLConnectionOperation.operationWithHttpURLConnection(urlConnection, new JSONCompletion() {
-	@Override
-	public void failure(HttpURLConnection urlConnection, Throwable t) {
-		System.out.println("Throwable: " + t);
-	}
-	@Override
-	public void success(HttpURLConnection urlConnection, String responseData) {
-		System.out.println("Response data:\n" + responseData);
-	}
+JSONURLRequestOperation operation = JSONURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+    @Override
+    public void failure(URLRequest request, Throwable t) {
+        System.out.println("Throwable: " + t);
+    }
+    @Override
+    public void success(URLRequest request, Object responseData) {
+        System.out.println("Response data:\n" + responseData);
+    }
 });
 operation.start();
 ```
@@ -67,21 +62,16 @@ operation.start();
 ```java
 String image_url = "http://www.insidefacebook.com/wp-content/uploads/2013/01/profile-150x150.png";
 
-HttpURLConnection connection = null;
-try {
-	connection = (HttpURLConnection) new URL(image_url).openConnection();
-} catch (IOException e) {
-	return;
-}
+URLRequest request = URLRequest.requestWithURLString(image_url);
 
-ImageURLConnectionOperation operation = ImageURLConnectionOperation.operationWithHttpURLConnection(connection, new ImageCompletion() {
+ImageURLRequestOperation operation = ImageURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
 	@Override
-	public void failure(HttpURLConnection urlConnection, Throwable t) {
+	public void failure(URLRequest request, Throwable t) {
     	System.out.println("Throwable: " + t);
 	}
 	@Override
-	public void success(HttpURLConnection urlConnection, byte[] responseData) {
-		System.out.println("Downloaded: " + responseData.length + " bytes");
+	public void success(URLRequest request, Object responseData) {
+		System.out.println("Downloaded: " + ((byte[])responseData).length + " bytes");
 	}
 });
 operation.start();
