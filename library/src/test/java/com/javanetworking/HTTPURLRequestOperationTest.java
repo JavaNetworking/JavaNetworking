@@ -3,7 +3,6 @@
 import static org.junit.Assert.*;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
