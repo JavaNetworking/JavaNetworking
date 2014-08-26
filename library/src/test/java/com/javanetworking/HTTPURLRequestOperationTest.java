@@ -2,6 +2,8 @@
 
 import static org.junit.Assert.*;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +13,7 @@ import com.javanetworking.HTTPURLRequestOperation.HTTPCompletion;
 
 public class HTTPURLRequestOperationTest {
 	
-	public static final String BASE_URL = "http://httpbin.org/";
+	public static final String BASE_URL = "http://httpbin.org";
 	
 	@Test
 	public void testHTTPURLRequestOperationSuccess() {
@@ -21,9 +23,9 @@ public class HTTPURLRequestOperationTest {
 		final StringBuilder successSB = new StringBuilder();
 		
 		// Request and operation
-		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "get");
+		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/get");
 		
-		HTTPURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
 				errorSB.append(t.toString());
@@ -36,7 +38,9 @@ public class HTTPURLRequestOperationTest {
 
 				signal.countDown();
 			}
-		}).start();
+		});
+
+		operation.start();
 
 		// Wait for signal count down
 		try {
@@ -46,6 +50,7 @@ public class HTTPURLRequestOperationTest {
         }
 
 		// Test values
+		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
 		assertEquals("", errorSB.toString());
 
 		assertTrue(errorSB.toString().isEmpty());
@@ -60,9 +65,9 @@ public class HTTPURLRequestOperationTest {
 		final StringBuilder successSB = new StringBuilder();
 
 		// Request and operation
-		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "status/404");
+		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/404");
 
-		HTTPURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
 			@Override
 			public void failure(URLRequest request, Throwable t) {
 				errorSB.append(t.toString());
@@ -75,7 +80,9 @@ public class HTTPURLRequestOperationTest {
 
 				signal.countDown();
 			}
-		}).start();
+		});
+
+		operation.start();
 
 		// Wait for signal count down
 		try {
@@ -85,6 +92,49 @@ public class HTTPURLRequestOperationTest {
 	    }
 
 		// Test values
+		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
+		assertEquals("", successSB.toString());
+
+		assertFalse(errorSB.toString().isEmpty());
+		assertTrue(successSB.toString().isEmpty());
+	}
+
+	@Test
+	public void test500StatusCodeError() throws MalformedURLException {
+		final CountDownLatch signal = new CountDownLatch(1);
+
+		final StringBuilder errorSB = new StringBuilder();
+		final StringBuilder successSB = new StringBuilder();
+
+		// Request and operation
+		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/500");
+
+		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+			@Override
+			public void failure(URLRequest request, Throwable t) {
+				errorSB.append(t.toString());
+
+				signal.countDown();
+			}
+			@Override
+			public void success(URLRequest request, Object response) {
+				successSB.append(response);
+
+				signal.countDown();
+			}
+		});
+
+		operation.start();
+
+		// Wait for signal count down
+		try {
+	        signal.await(30, TimeUnit.SECONDS); // wait for callback
+	    } catch (InterruptedException e) {
+	        e.printStackTrace();
+	    }
+
+		// Test values
+		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
 		assertEquals("", successSB.toString());
 
 		assertFalse(errorSB.toString().isEmpty());
