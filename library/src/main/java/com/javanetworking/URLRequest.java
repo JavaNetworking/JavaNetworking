@@ -10,7 +10,10 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ Wrapper class for a {@link URLConnection} request. Holds the string URL, URLConnection
+ request and HTTP body content for current request.
+ */
 public class URLRequest {
 
 	private String url;
@@ -35,6 +38,10 @@ public class URLRequest {
 
 	public void setHTTPBody(byte[] HTTPBody) {
 		this.HTTPBody = HTTPBody;
+	}
+
+	public Exception getException() {
+		return this.error;
 	}
 
 	public URLConnection getURLConnection() {
@@ -79,7 +86,9 @@ public class URLRequest {
 	public void setRequestMethod(String method) {
 		try {
 			getHttpURLConnection().setRequestMethod(method);
-		} catch (ProtocolException e) {}
+		} catch (ProtocolException e) {
+			this.error = e;
+		}
 	}
 
 	public void setConnectTimeout(int timeout) {

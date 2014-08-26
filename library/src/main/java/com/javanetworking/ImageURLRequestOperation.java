@@ -62,25 +62,5 @@ public class ImageURLRequestOperation extends HTTPURLRequestOperation {
 	protected List<String> getAcceptableContentTypes() {
 		return HTTPURLRequestOperation.arrayToList(new String[] { "image/tiff", "image/jpeg", "image/gif", "image/png", "image/ico", "image/x-icon", "image/bmp", "image/x-bmp", "image/x-xbitmap", "image/x-win-bitmap" });
 	}
-	
-	/**
-	 Sets the {@link HTTPCompletion} interface that responds to this operation.
-	 */
-	@Override
-	protected void setCompletion(final HTTPCompletion completion) {
-		super.setCompletion(new HTTPCompletion() {
-			@Override
-			public void failure(URLRequest request, Throwable t) {
-				if (completion != null) {
-					completion.failure(request, t);
-				}
-			}
-			@Override
-			public void success(URLRequest request, Object responseData) {
-				if (completion != null) {
-					completion.success(request, responseData);
-				}
-			}
-		});
-	}
+
 }
