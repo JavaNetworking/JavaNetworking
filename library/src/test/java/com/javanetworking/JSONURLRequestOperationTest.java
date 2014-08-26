@@ -182,4 +182,46 @@ public class JSONURLRequestOperationTest {
 		assertFalse(errorSB.toString().isEmpty());
 		assertTrue(successSB.toString().isEmpty());
 	}
+	
+	@Test
+	public void testEmptySuccessObjectOnError() {
+		final CountDownLatch signal = new CountDownLatch(1);
+
+		final StringBuilder errorSB = new StringBuilder();
+		final StringBuilder successSB = new StringBuilder();
+		
+		// Request and operation
+		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/404");
+		
+		JSONURLRequestOperation operation = JSONURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+			@Override
+			public void failure(URLRequest request, Throwable t) {
+				errorSB.append(t.toString());
+
+				signal.countDown();
+			}
+			@Override
+			public void success(URLRequest request, Object response) {
+				successSB.append(response);
+
+				signal.countDown();
+			}
+		});
+
+		operation.start();
+
+		// Wait for signal count down
+		try {
+            signal.await(30, TimeUnit.SECONDS); // wait for callback
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+		// Test values
+		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
+		assertEquals("", successSB.toString());
+
+		assertFalse(errorSB.toString().isEmpty());
+		assertTrue(successSB.toString().isEmpty());
+	}
 }
