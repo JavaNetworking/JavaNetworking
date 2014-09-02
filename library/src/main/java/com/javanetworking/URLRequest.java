@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class URLRequest {
 
-	private String url;
+	private String urlString;
 	private URLConnection urlConnection;
 	private byte[] HTTPBody;
 	private Exception error;
@@ -25,9 +25,13 @@ public class URLRequest {
 		return new URLRequest(url);
 	}
 	
-	
-	public URLRequest(String url) {
-		this.url = url;
+	/**
+	 Contructor for a new request.
+	 
+	 @param urlString A {@link String} representation of the resource URL.
+	 */
+	public URLRequest(String urlString) {
+		this.urlString = urlString;
 		this.urlConnection = null;
 		this.HTTPBody = null;
 	}
@@ -47,7 +51,7 @@ public class URLRequest {
 	public URLConnection getURLConnection() {
 		if (urlConnection == null) {
 			try {
-				urlConnection = new URL(this.url).openConnection();
+				urlConnection = new URL(this.urlString).openConnection();
 			} catch (Exception e) {
 				this.error = e;
 			}
