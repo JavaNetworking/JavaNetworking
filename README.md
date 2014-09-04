@@ -38,7 +38,6 @@ gradlew.bat test
 ```
 
 ### Download JSON
-Response is a 'com.javanetworking.gson.JsonElement' object created from the JSON response.
 
 ```java
 String urlString = "https://api.github.com/search/repositories?q=tetris+language:assembly&sort=stars&order=desc";
@@ -57,12 +56,13 @@ JSONURLRequestOperation operation = JSONURLRequestOperation.operationWithURLRequ
 });
 operation.start();
 ```
+Response is a 'com.javanetworking.gson.JsonElement' object created from the JSON response.
+
 
 ### Download XML
-Response is a 'org.w3c.dom.Document' object created from the XML response.
 
 ```java
-String urlString = "http://httpbin.org/get";
+String urlString = "http://httpbin.org/xml";
         
 URLRequest request = URLRequest.requestWithURLString(urlString);
 
@@ -77,6 +77,8 @@ XMLURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
     }
 }).start();
 ```
+Response is a 'org.w3c.dom.Document' object created from the XML response.
+
 
 ### Download image
 
