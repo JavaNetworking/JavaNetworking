@@ -172,6 +172,8 @@ public class HTTPClient {
 
      @param parameters A {@link Map} object with string keys and object values.
      @param stringEncoding A {@link Charset} value representing the wanted string encoding.
+
+	 @return A query string from parameters with desired string encoding.
      */
     public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -193,12 +195,21 @@ public class HTTPClient {
      Return a {@link List} of {@link QueryStringPair}s from a {@link Map}.
 
      @param parameters A {@link Map} object with string keys and object values.
+
      @return A {@link List} of {@link QueryStringPair} objects.
      */
     public static List<QueryStringPair> QueryStringPairsFromMap(Map<String, Object> parameters) {
         return QueryStringPairsFromKeyAndValue(null, parameters);
     }
 
+    /**
+	 Return a {@link List} of {@link QueryStringPair}s from a string value key and object value.
+	 
+	 @param key A string value representing the key value in the query parameter.
+	 @param valey An object value representing the query parameter value.
+
+	 @return A {@link List} of {@link QueryStringPair} objects generated from key and value.
+     */
     public static List<QueryStringPair> QueryStringPairsFromKeyAndValue(String key, Object value) {
         List<QueryStringPair> queryStringComponents = new ArrayList<QueryStringPair>();
 
@@ -229,10 +240,23 @@ public class HTTPClient {
         return queryStringComponents;
     }
 
+    /**
+	 Return a JSON string from a {@link Map} object.
+
+	 @param parameters A {@link Map} of the query parameters. 
+
+	 @return A JSON string generated from query parameters. 
+     */
 	public static String JsonStringFromMap(Map<String, Object> parameters) {
 		return new Gson().toJson(parameters);
     }
 
+	/**
+	 Encode an input string with the desired string encoding.
+
+	 @param input The string input to be encoded. 
+	 @param stringEncoding The {@link Charset} value to encode the string by.
+	 */
     public static String encode(String input, Charset stringEncoding) {
         if (input == null) {
 			return "";
@@ -271,6 +295,9 @@ public class HTTPClient {
         return HTTPClient.encode(field, stringEncoding);
     }
 
+    /**
+     Inner class representing a query string pair.
+     */
     private static class QueryStringPair {
 
         private String field;
@@ -298,15 +325,28 @@ public class HTTPClient {
 		this.asynchronous = asynchronous;
     }
 
-    public void enqueueHTTPURLConnectionOperation(HTTPURLRequestOperation operation) {
-		if (asynchronous) {
-			this.operationQueue.addOperation(operation);
+    public void enqueueHTTPURLRequestOperation(HTTPURLRequestOperation operation) {
+    	this.operationQueue.addOperation(operation);
+    }
+
+    public void prepareHTTPURLRequestOperationForExecution(HTTPURLRequestOperation operation) {
+    	if (asynchronous) {
+    		this.enqueueHTTPURLRequestOperation(operation);
 		} else {
 			operation.execute();
 			operation.complete();
 		}
     }
 
+    /**
+     Create a {@link URLRequest} connection with method, path and parameters.
+
+	 @param method The HTTP method to be used.
+	 @param path The resource path of the {@link URLReqeust}.
+	 @param parameters The query string parameters.
+
+	 @return A {@link URLRequest} connection to be used by an operation.
+     */
     public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
     	if (path.charAt(0) == '/') {
 			path = path.substring(1);
@@ -344,6 +384,14 @@ public class HTTPClient {
         return request;
     }
 
+    /**
+     Creates a {@link HTTPURLRequestOperation} with an {@link URLRequest} and a {@link HTTPCompletion} callback.
+
+	 @param request The {@link URLRequest} connection to be used in this operation. 
+	 @param completion The {@link HTTPCompletion} callback method that return the response of the operation.
+
+	 @return A {@link HTTPURLRequestOperation} based on the {@code registeredOperationClassNames}.
+     */
     public HTTPURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 
         HTTPURLRequestOperation operation = null;
@@ -375,28 +423,54 @@ public class HTTPClient {
         return operation;
     }
 
+    /**
+     Creates an {@link HTTPURLRequestOperation} with a `GET` request. By default the client is asynchronous
+     and the operation is enqueued on the clients {@link OperationQueue}.
+     */
     public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
         URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHTTPURLConnectionOperation(operation);
+        this.prepareHTTPURLRequestOperationForExecution(operation);
     }
 
+    /**
+     Creates an {@link HTTPURLRequestOperation} with a `POST` request. By default the client is asynchronous
+     and the operation is enqueued on the clients {@link OperationQueue}.
+     */
     public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHTTPURLConnectionOperation(operation);
+        this.prepareHTTPURLRequestOperationForExecution(operation);
     }
 
+    /**
+     Creates an {@link HTTPURLRequestOperation} with a `PUT` request. By default the client is asynchronous
+     and the operation is enqueued on the clients {@link OperationQueue}.
+     */
     public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHTTPURLConnectionOperation(operation);
+        this.prepareHTTPURLRequestOperationForExecution(operation);
     }
 
+    /**
+     Creates an {@link HTTPURLRequestOperation} with a `PATCH` request. By default the client is asynchronous
+     and the operation is enqueued on the clients {@link OperationQueue}.
+     */
+    public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+   	URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
+       HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+       this.prepareHTTPURLRequestOperationForExecution(operation);
+   	}
+
+    /**
+     Creates an {@link HTTPURLRequestOperation} with a `DELETE` request. By default the client is asynchronous
+     and the operation is enqueued on the clients {@link OperationQueue}.
+     */
     public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.enqueueHTTPURLConnectionOperation(operation);
+        this.prepareHTTPURLRequestOperationForExecution(operation);
     }
 
 }
