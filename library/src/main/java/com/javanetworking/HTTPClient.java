@@ -148,14 +148,31 @@ public class HTTPClient {
         return true;
     }
 
+    /**
+     Add default header value to default headers.
+
+     @param header A string value representing the header name.
+     @param value A string value representing the header field value.
+     */
     public void setDefaultHeader(String header, String value) {
         this.defaultHeaders.put(header, value);
     }
 
+    /**
+     Set the {@link HTTPClientParameterEncoding} parameter encoding value.
+
+     @param parameterEncoding A {@link HTTPClientParameterEncoding} value indicating the encoding to be used.
+     */
     public void setParameterEncoding(HTTPClientParameterEncoding parameterEncoding) {
         this.parameterEncoding = parameterEncoding;
     }
 
+    /**
+     Creates a query string from parameters with given {@link Charset} encoding.
+
+     @param parameters A {@link Map} object with string keys and object values.
+     @param stringEncoding A {@link Charset} value representing the wanted string encoding.
+     */
     public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
         StringBuilder stringBuilder = new StringBuilder();
         
@@ -172,6 +189,12 @@ public class HTTPClient {
         return stringBuilder.toString();
     }
 
+    /**
+     Return a {@link List} of {@link QueryStringPair}s from a {@link Map}.
+
+     @param parameters A {@link Map} object with string keys and object values.
+     @return A {@link List} of {@link QueryStringPair} objects.
+     */
     public static List<QueryStringPair> QueryStringPairsFromMap(Map<String, Object> parameters) {
         return QueryStringPairsFromKeyAndValue(null, parameters);
     }
