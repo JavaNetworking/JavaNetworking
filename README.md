@@ -3,7 +3,7 @@ JavaNetworking
 
 [![Build Status](https://travis-ci.org/JavaNetworking/JavaNetworking.svg?branch=master)](https://travis-ci.org/JavaNetworking/JavaNetworking)
 
-JavaNetworking is an asynchronous java networking library.
+JavaNetworking is a delightful Java networking library.
 
 
 ## Basic usage
