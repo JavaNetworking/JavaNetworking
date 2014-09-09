@@ -79,6 +79,11 @@ public class HTTPClient {
     private List<String> registeredOperationClassNames;
 
     /**
+     A boolean value indicating if the HTTPClient should be asynchronous. Default is true.
+     */
+    private boolean asynchronous = true;
+
+    /**
      Static contructor.
      */
     public static HTTPClient clientWithBaseURL(String baseURL) {
@@ -263,8 +268,20 @@ public class HTTPClient {
         }
     }
 
+    /**
+     Sets the asynchronous boolean indicating if HTTPClient should be asynchronous or synchronous.
+     */
+    public void setAsynchronous(boolean asynchronous) {
+		this.asynchronous = asynchronous;
+    }
+
     public void enqueueHTTPURLConnectionOperation(HTTPURLRequestOperation operation) {
-        this.operationQueue.addOperation(operation);
+		if (asynchronous) {
+			this.operationQueue.addOperation(operation);
+		} else {
+			operation.execute();
+			operation.complete();
+		}
     }
 
     public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
