@@ -97,6 +97,13 @@ public class URLConnectionOperation extends BaseOperation {
 	}
 
 	/**
+	 Starts the operation without enqu it on an operation queue and running it on a thread.
+	 */
+	public void startSynchronous() {
+		this.start(false);
+	}
+
+	/**
 	 Starts and runs this operation. If asynchronous is true an operation queue is created and the operation is
 	 put on its queue.
 
