@@ -426,6 +426,10 @@ public class HTTPClient {
     /**
      Creates an {@link HTTPURLRequestOperation} with a `GET` request. By default the client is asynchronous
      and the operation is enqueued on the clients {@link OperationQueue}.
+
+     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+     @param parameters The parameters to be encoded and appended as the query string for the request URL.
+     @param completion A callback object that is called when the request operation finishes.
      */
     public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
         URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
@@ -436,6 +440,10 @@ public class HTTPClient {
     /**
      Creates an {@link HTTPURLRequestOperation} with a `POST` request. By default the client is asynchronous
      and the operation is enqueued on the clients {@link OperationQueue}.
+
+     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+     @param parameters The parameters to be encoded and appended as the query string for the request URL.
+     @param completion A callback object that is called when the request operation finishes.
      */
     public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
@@ -446,6 +454,10 @@ public class HTTPClient {
     /**
      Creates an {@link HTTPURLRequestOperation} with a `PUT` request. By default the client is asynchronous
      and the operation is enqueued on the clients {@link OperationQueue}.
+
+     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+     @param parameters The parameters to be encoded and appended as the query string for the request URL.
+     @param completion A callback object that is called when the request operation finishes.
      */
     public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
@@ -456,16 +468,24 @@ public class HTTPClient {
     /**
      Creates an {@link HTTPURLRequestOperation} with a `PATCH` request. By default the client is asynchronous
      and the operation is enqueued on the clients {@link OperationQueue}.
+
+     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+     @param parameters The parameters to be encoded and appended as the query string for the request URL.
+     @param completion A callback object that is called when the request operation finishes.
      */
     public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-   	URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
-       HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-       this.prepareHTTPURLRequestOperationForExecution(operation);
+		URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
+		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+		this.prepareHTTPURLRequestOperationForExecution(operation);
    	}
 
     /**
      Creates an {@link HTTPURLRequestOperation} with a `DELETE` request. By default the client is asynchronous
      and the operation is enqueued on the clients {@link OperationQueue}.
+
+     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+     @param parameters The parameters to be encoded and appended as the query string for the request URL.
+     @param completion A callback object that is called when the request operation finishes.
      */
     public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
     	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
