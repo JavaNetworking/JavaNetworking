@@ -93,8 +93,23 @@ public class URLConnectionOperation extends BaseOperation {
 	 Creates a new {@link OperationQueue} and adds this class which executes this operation.
 	 */
 	public void start() {
-		OperationQueue queue = new OperationQueue();
-		queue.addOperation(this);
+		this.start(true);
+	}
+
+	/**
+	 Starts and runs this operation. If asynchronous is true an operation queue is created and the operation is
+	 put on its queue.
+
+	 @param asynchronous A boolean value indicating if this operation should be started synchronously or asynchronously.
+	 */
+	public void start(boolean asynchronous) {
+		if (asynchronous) {
+			OperationQueue queue = new OperationQueue();
+			queue.addOperation(this);
+		} else {
+			this.execute();
+			this.complete();
+		}
 	}
 
 	/**
