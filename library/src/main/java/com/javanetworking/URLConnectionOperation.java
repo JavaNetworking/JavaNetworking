@@ -97,7 +97,7 @@ public class URLConnectionOperation extends BaseOperation {
 	}
 
 	/**
-	 Starts the operation without enqu it on an operation queue and running it on a thread.
+	 Starts the operation without enqueuing it on an operation queue and running it on a thread.
 	 */
 	public void startSynchronous() {
 		this.start(false);

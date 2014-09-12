@@ -333,8 +333,7 @@ public class HTTPClient {
     	if (asynchronous) {
     		this.enqueueHTTPURLRequestOperation(operation);
 		} else {
-			operation.execute();
-			operation.complete();
+			operation.startSynchronous();
 		}
     }
 
