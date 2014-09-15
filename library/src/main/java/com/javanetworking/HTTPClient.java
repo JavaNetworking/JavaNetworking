@@ -319,7 +319,9 @@ public class HTTPClient {
     }
 
     /**
-     Sets the asynchronous boolean indicating if HTTPClient should be asynchronous or synchronous.
+     Sets the asynchronous boolean indicating if HTTPClient should be asynchronous or synchronous. Default is true.
+
+     @param asynchronous A boolean value indicating if the clients requests should be asynchronous.
      */
     public void setAsynchronous(boolean asynchronous) {
 		this.asynchronous = asynchronous;
