@@ -104,6 +104,8 @@ operation.start();
 * File upload
 * Progress callback
 * Redirect callback
+* Android example
+* Java example
 
 
 ## Credits
