@@ -100,6 +100,12 @@ ImageURLRequestOperation operation = ImageURLRequestOperation.operationWithURLRe
 operation.start();
 ```
 
+### TODO
+* File upload
+* Progress callback
+* Redirect callback
+
+
 ## Credits
 
 JavaNetworking is based upon the popular iOS and OSX library [AFNetworking](http://afnetworking.com/).
