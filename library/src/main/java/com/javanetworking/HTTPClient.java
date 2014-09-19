@@ -165,6 +165,11 @@ public class HTTPClient {
         this.defaultHeaders.put(header, value);
     }
 
+    public void setAuthorizationHeaderWithUsernameAndPassword(String username, String password) {
+		String basicAuthCredentials = String.format("%s:%s", username, password);
+		this.setDefaultHeader("Authorization", String.format("Basic %s", Base64EncodedStringFromString(basicAuthCredentials)));
+    }
+
     /**
      Set the {@link HTTPClientParameterEncoding} parameter encoding value.
 
@@ -256,6 +261,41 @@ public class HTTPClient {
      */
 	public static String JsonStringFromMap(Map<String, Object> parameters) {
 		return new Gson().toJson(parameters);
+    }
+
+	/**
+	 Get Base64 encoded string from input string.
+
+	 @param string The string to be encoded with Base64-encoding.
+
+	 @return A Base64 encoded string representation of parameter string.
+	 */
+	public static String Base64EncodedStringFromString(String string) {
+		byte[] data = string.getBytes();
+        int length = data.length;
+
+        byte[] input = data;
+        byte[] output = new byte[((length + 2) / 3) * 4];
+
+        for (int i = 0; i < length; i += 3) {
+            int value = 0;
+            for (int j = i; j < (i + 3); j++) {
+                value <<= 8;
+                if (j < length) {
+                    value |= (0xFF & input[j]);
+                }
+            }
+
+            String kBase64EncodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+            int idx = (i / 3) * 4;
+            output[idx + 0] = (byte) kBase64EncodingTable.charAt((value >> 18) & 0x3F);
+            output[idx + 1] = (byte) kBase64EncodingTable.charAt((value >> 12) & 0x3F);
+            output[idx + 2] = (byte) ((i + 1) < length ? kBase64EncodingTable.charAt((value >> 6)  & 0x3F) : '=');
+            output[idx + 3] = (byte) ((i + 2) < length ? kBase64EncodingTable.charAt((value >> 0)  & 0x3F) : '=');
+        }
+
+        return new String(output);
     }
 
 	/**
