@@ -1,7 +1,7 @@
 JavaNetworking
 ==============
 
-[![Build Status](https://travis-ci.org/JavaNetworking/JavaNetworking.svg?branch=master)](https://travis-ci.org/JavaNetworking/JavaNetworking) [![Platform](http://img.shields.io/badge/platform-java%7Candroid-lightgrey.svg)]() [![License](http://img.shields.io/badge/license-MIT-red.svg)]()
+[![Build Status](https://travis-ci.org/JavaNetworking/JavaNetworking.svg?branch=master)](https://travis-ci.org/JavaNetworking/JavaNetworking) [![Platform](http://img.shields.io/badge/platform-java%7Candroid-lightgrey.svg)](https://github.com/JavaNetworking/JavaNetworking) [![License](http://img.shields.io/badge/license-MIT-red.svg)](http://opensource.org/licenses/MIT)
 
 JavaNetworking is a delightful Java networking library.
 
