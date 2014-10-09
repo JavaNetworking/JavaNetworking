@@ -44,7 +44,7 @@ String urlString = "https://api.github.com/search/repositories?q=tetris+language
 
 URLRequest request = URLRequest.requestWithURLString(urlString);
 
-JSONURLRequestOperation operation = JSONURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+JSONURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
     @Override
     public void failure(URLRequest request, Throwable t) {
         System.out.println("Throwable: " + t);
@@ -53,8 +53,7 @@ JSONURLRequestOperation operation = JSONURLRequestOperation.operationWithURLRequ
     public void success(URLRequest request, Object responseData) {
         System.out.println("Response data:\n" + responseData);
     }
-});
-operation.start();
+}).start();
 ```
 Response is a 'com.javanetworking.gson.JsonElement' object created from the JSON response.
 
@@ -87,7 +86,7 @@ String image_url = "http://www.insidefacebook.com/wp-content/uploads/2013/01/pro
 
 URLRequest request = URLRequest.requestWithURLString(image_url);
 
-ImageURLRequestOperation operation = ImageURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
+ImageURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
 	@Override
 	public void failure(URLRequest request, Throwable t) {
     	System.out.println("Throwable: " + t);
@@ -96,8 +95,7 @@ ImageURLRequestOperation operation = ImageURLRequestOperation.operationWithURLRe
 	public void success(URLRequest request, Object responseData) {
 		System.out.println("Downloaded: " + ((byte[])responseData).length + " bytes");
 	}
-});
-operation.start();
+}).start();
 ```
 
 ## Credits
