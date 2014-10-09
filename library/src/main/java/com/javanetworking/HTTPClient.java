@@ -134,6 +134,13 @@ public class HTTPClient {
 		return operationQueue;
 	}
 
+    /**
+     Get the query string parameter {@link Charset} encoding.
+     */
+    public Charset getStringEncoding() {
+		return this.stringEncoding;
+    }
+
     public boolean registerHTTPOperationClass(Class<?> operationClass) {
         if (operationClass.isAssignableFrom(HTTPURLRequestOperation.class)) {
             return false;
@@ -156,6 +163,11 @@ public class HTTPClient {
      */
     public void setDefaultHeader(String header, String value) {
         this.defaultHeaders.put(header, value);
+    }
+
+    public void setAuthorizationHeaderWithUsernameAndPassword(String username, String password) {
+		String basicAuthCredentials = String.format("%s:%s", username, password);
+		this.setDefaultHeader("Authorization", String.format("Basic %s", Base64EncodedStringFromString(basicAuthCredentials)));
     }
 
     /**
@@ -249,6 +261,41 @@ public class HTTPClient {
      */
 	public static String JsonStringFromMap(Map<String, Object> parameters) {
 		return new Gson().toJson(parameters);
+    }
+
+	/**
+	 Get Base64 encoded string from input string.
+
+	 @param string The string to be encoded with Base64-encoding.
+
+	 @return A Base64 encoded string representation of parameter string.
+	 */
+	public static String Base64EncodedStringFromString(String string) {
+		byte[] data = string.getBytes();
+        int length = data.length;
+
+        byte[] input = data;
+        byte[] output = new byte[((length + 2) / 3) * 4];
+
+        for (int i = 0; i < length; i += 3) {
+            int value = 0;
+            for (int j = i; j < (i + 3); j++) {
+                value <<= 8;
+                if (j < length) {
+                    value |= (0xFF & input[j]);
+                }
+            }
+
+            String kBase64EncodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+            int idx = (i / 3) * 4;
+            output[idx + 0] = (byte) kBase64EncodingTable.charAt((value >> 18) & 0x3F);
+            output[idx + 1] = (byte) kBase64EncodingTable.charAt((value >> 12) & 0x3F);
+            output[idx + 2] = (byte) ((i + 1) < length ? kBase64EncodingTable.charAt((value >> 6)  & 0x3F) : '=');
+            output[idx + 3] = (byte) ((i + 2) < length ? kBase64EncodingTable.charAt((value >> 0)  & 0x3F) : '=');
+        }
+
+        return new String(output);
     }
 
 	/**
@@ -356,7 +403,7 @@ public class HTTPClient {
         
         // Add GET/HEAD/DELETE parameters to URL string
         if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
-        	urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding));
+			urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, getStringEncoding()));
         }
         
         URLRequest request = URLRequest.requestWithURLString(urlString);
@@ -368,16 +415,16 @@ public class HTTPClient {
         
         // Set POST/PUT requestBody on operation 
         if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
-        	String charset = this.stringEncoding.name();
+			String charsetName = getStringEncoding().name();
 
             switch (this.parameterEncoding) {
                 case FormURLParameterEncoding:
-                	request.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charset));
-                    request.setHTTPBody(HTTPClient.queryStringFromParametersWithCharset(parameters, this.stringEncoding).getBytes(this.stringEncoding));
+					request.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charsetName));
+					request.setHTTPBody(HTTPClient.queryStringFromParametersWithCharset(parameters, getStringEncoding()).getBytes(getStringEncoding()));
                     break;
                 case JSONParameterEncoding:
-                	request.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charset));
-                    request.setHTTPBody(HTTPClient.JsonStringFromMap(parameters).getBytes(this.stringEncoding));
+					request.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charsetName));
+                    request.setHTTPBody(HTTPClient.JsonStringFromMap(parameters).getBytes(getStringEncoding()));
                     break;
             }
         }
