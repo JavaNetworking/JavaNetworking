@@ -20,6 +20,7 @@ public class URLRequest {
 	private URLConnection urlConnection;
 	private byte[] HTTPBody;
 	private Exception error;
+	private InputStream inputStream;
 	
 	public static URLRequest requestWithURLString(String url) {
 		return new URLRequest(url);
@@ -101,5 +102,9 @@ public class URLRequest {
 
 	public Map<String, List<String>> getHeaderFields() {
 		return getHttpURLConnection().getHeaderFields();
+	}
+
+	public void setHTTPBodyStream(InputStream bodyStream) {
+		this.inputStream = bodyStream;
 	}
 }

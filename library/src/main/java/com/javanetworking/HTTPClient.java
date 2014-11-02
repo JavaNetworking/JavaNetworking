@@ -24,7 +24,11 @@ import com.javanetworking.HTTPURLRequestOperation.HTTPCompletion;
 import com.javanetworking.gson.Gson;
 import com.operationqueue.OperationQueue;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -395,7 +399,7 @@ public class HTTPClient {
 
 	 @return A {@link URLRequest} connection to be used by an operation.
      */
-    public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
+    public URLRequest requestWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
     	if (path.charAt(0) == '/') {
 			path = path.substring(1);
 		}
@@ -432,6 +436,241 @@ public class HTTPClient {
         return request;
     }
 
+    
+    //
+    // Multipart form request
+    //
+    
+    public interface MultipartFormInterface {
+    	void multipartFormData(MultipartFormData formData);
+    }
+    
+    public URLRequest multipartFormRequestWithMethodPathParametersAndInterface(String method, String path, Map<String, Object> parameters, final MultipartFormInterface multipartInterface) {
+    	
+    	URLRequest request = this.requestWithMethodPathAndParameters(method, path, null);
+    	
+    	StreamingMultipartFormData formData = StreamingMultipartFormData.multipartFormDataWithRequestAndStringEncoding(request, this.stringEncoding);
+    	
+    	if (parameters != null) {
+            for (QueryStringPair pair : QueryStringPairsFromMap(parameters)) {
+            	byte[] data = null;
+            	
+            	if (pair.value != null) {
+            		data = pair.value.getBytes(this.stringEncoding);
+            	}
+            	
+            	if (data != null) {
+            		formData.appendPartWithFormDataAndName(data, pair.field);
+            	}
+            }
+        }
+
+        if (multipartInterface != null) {
+        	multipartInterface.multipartFormData(formData);
+        }
+    	
+    	return formData.requestByFinalizingMultipartFormData();
+    }
+
+    public static class HTTPBodyPart {
+    	private Charset stringEncoding;
+    	private Map<String, String> headers;
+    	private byte[] body;
+    	private int bodyContentLength;
+    	private InputStream inputStream;
+    	private boolean hasInitialBoundary;
+    	private boolean hasFinalBoundary;
+    	
+    	
+    	public HTTPBodyPart() {
+    		this.transitionToNextPhase();
+    	}
+    	
+    	public InputStream getInputStream() {
+    		if (inputStream == null) {
+				inputStream = new ByteArrayInputStream(this.body, 0, this.body.length);
+			}
+    		return inputStream;
+    	}
+    	
+    	public boolean hasBytesAvailable() throws IOException {
+    		return (this.inputStream.available() > 0);
+    	}
+    	
+    	public int read(byte[] buffer) {
+    		
+    		
+			return 0;
+    	}
+    }
+    
+    public static class MultipartBodyStream extends InputStream {
+
+    	private Charset stringEncoding;
+    	private List<HTTPBodyPart> HTTPBodyParts;
+    	private int numberOfBytesInPacket;
+		public int contentLength;
+    	private HTTPBodyPart currentHTTPBodyPart;
+		
+		
+    	public MultipartBodyStream(Charset encoding) {
+
+    		this.stringEncoding = encoding;
+    		this.HTTPBodyParts = new ArrayList<HTTPClient.HTTPBodyPart>();
+    		this.numberOfBytesInPacket = Integer.MAX_VALUE;
+
+    	}
+    	
+    	@Override
+    	public int read(byte[] b, int off, int length) throws IOException {
+    		
+    		int totalNumberOfBytesRead = 0;
+
+		    while ((int)totalNumberOfBytesRead < Math.min(length, this.numberOfBytesInPacket)) {
+		        if (this.currentHTTPBodyPart == null || !this.currentHTTPBodyPart.hasBytesAvailable()) {
+		            if (!(this.currentHTTPBodyPart = [self.HTTPBodyPartEnumerator nextObject])) {
+		                break;
+		            }
+		        } else {
+		            int maxLength = length - (int)totalNumberOfBytesRead;
+		            int numberOfBytesRead = [self.currentHTTPBodyPart read:&buffer[totalNumberOfBytesRead] maxLength:maxLength];
+		            if (numberOfBytesRead == -1) {
+		                self.streamError = self.currentHTTPBodyPart.inputStream.streamError;
+		                break;
+		            } else {
+		                totalNumberOfBytesRead += numberOfBytesRead;
+
+		                if (self.delay > 0.0f) {
+		                    [NSThread sleepForTimeInterval:self.delay];
+		                }
+		            }
+		        }
+		    }
+		    
+		    return totalNumberOfBytesRead;
+    	}
+
+		public void setInitialAndFinalBoundaries() {
+			if (this.HTTPBodyParts.size() > 0) {
+		        for (HTTPBodyPart bodyPart : this.HTTPBodyParts) {
+		            bodyPart.hasInitialBoundary = false;
+		            bodyPart.hasFinalBoundary = false;
+		        }
+
+		        this.HTTPBodyParts.get(0).hasInitialBoundary = true;
+		        this.HTTPBodyParts.get(this.HTTPBodyParts.size()-1).hasFinalBoundary = true;
+		    }
+		}
+
+		public boolean isEmpty() {
+			return this.HTTPBodyParts.isEmpty();
+		}
+
+		public void appendHTTPBodyPart(HTTPBodyPart bodyPart) {
+			this.HTTPBodyParts.add(bodyPart);
+		}
+    }
+    
+    public interface MultipartFormData {
+		boolean appendPartWithFileURLAndName(URL fileUrl, String name);
+		boolean appendPartWithFileURLNameFilenameAndMimetype(URL fileUrl, String name, String filename, String mimeType);
+		void appendPartWithInputStreamNameFilenameAndLength(InputStream inputStream, String name, String filename, int length, String mimetype);
+		void appendPartWithFileDataNameFilenameAndMimetype(byte[] data, String name, String filename, String mimetype);
+		void appendPartWithFormDataAndName(byte[] data, String name);
+		void appendPartWithHeadersAndBody(Map<String, String> headers, byte[] body);
+	}
+
+    public static class StreamingMultipartFormData implements MultipartFormData {
+
+    	private URLRequest request;
+    	private Charset stringEncoding;
+    	
+    	private MultipartBodyStream bodyStream;
+    	
+    	private String boundary;
+    	
+		public StreamingMultipartFormData(URLRequest request, Charset stringEncoding) {
+			this.request = request;
+			this.stringEncoding = stringEncoding;
+			this.boundary = String.format("Boundary+%08X%08X", Math.random(), Math.random());
+			this.bodyStream = new MultipartBodyStream(stringEncoding);
+		}
+
+		public static StreamingMultipartFormData multipartFormDataWithRequestAndStringEncoding(URLRequest request, Charset stringEncoding) {
+			return new StreamingMultipartFormData(request, stringEncoding);
+		}
+
+		@Override
+		public boolean appendPartWithFileURLAndName(URL fileUrl, String name) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean appendPartWithFileURLNameFilenameAndMimetype(
+				URL fileUrl, String name, String filename, String mimeType) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void appendPartWithInputStreamNameFilenameAndLength(
+				InputStream inputStream, String name, String filename,
+				int length, String mimetype) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendPartWithFileDataNameFilenameAndMimetype(byte[] data,
+				String name, String filename, String mimetype) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendPartWithFormDataAndName(byte[] data, String name) {
+			Map<String, String> headers = new HashMap<String, String>();
+			headers.put("Content-Disposition", String.format("form-data; name=\"%s\"", name));
+
+			this.appendPartWithHeadersAndBody(headers, data);
+		}
+
+		@Override
+		public void appendPartWithHeadersAndBody(Map<String, String> headers, byte[] body) {
+			
+			HTTPBodyPart bodyPart = new HTTPBodyPart();
+		    bodyPart.stringEncoding = this.stringEncoding;
+		    bodyPart.headers = headers;
+		    bodyPart.boundary = this.boundary;
+		    bodyPart.bodyContentLength = body.length;
+		    bodyPart.body = body;
+
+		    this.bodyStream.appendHTTPBodyPart(bodyPart);
+		}
+		
+		public URLRequest requestByFinalizingMultipartFormData() {
+			if (this.bodyStream.isEmpty()) {
+		        return this.request;
+		    }
+			
+			this.bodyStream.setInitialAndFinalBoundaries();
+			
+			this.request.setRequestProperty("Content-Type", String.format("multipart/form-data; boundary=%s", this.boundary));
+			this.request.setRequestProperty("Content-Length", String.format("%d", this.bodyStream.contentLength));
+			this.request.setHTTPBodyStream(this.bodyStream);
+			
+			return this.request;
+		}
+    }
+    
+    
+    //
+    // Multipart form reqeust end
+    //
+    
+    
+    
     /**
      Creates a {@link HTTPURLRequestOperation} with an {@link URLRequest} and a {@link HTTPCompletion} callback.
 
@@ -480,7 +719,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-        URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+        URLRequest request = this.requestWithMethodPathAndParameters("GET", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
@@ -494,7 +733,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
+    	URLRequest request = this.requestWithMethodPathAndParameters("POST", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
@@ -508,7 +747,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
+    	URLRequest request = this.requestWithMethodPathAndParameters("PUT", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
@@ -522,7 +761,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-		URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
+		URLRequest request = this.requestWithMethodPathAndParameters("PATCH", path, parameters);
 		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
 		this.prepareHTTPURLRequestOperationForExecution(operation);
    	}
@@ -536,7 +775,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
+    	URLRequest request = this.requestWithMethodPathAndParameters("DELETE", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
