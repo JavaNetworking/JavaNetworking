@@ -62,7 +62,7 @@ Response is a 'com.javanetworking.gson.JsonElement' object created from the JSON
 
 ```java
 String urlString = "http://httpbin.org/xml";
-        
+
 URLRequest request = URLRequest.requestWithURLString(urlString);
 
 XMLURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
@@ -97,14 +97,6 @@ ImageURLRequestOperation.operationWithURLRequest(request, new HTTPCompletion() {
 	}
 }).start();
 ```
-
-### TODO
-* File upload
-* Progress callback
-* Redirect callback
-* Android example
-* Java example
-
 
 ## Credits
 
