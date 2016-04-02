@@ -16,90 +16,90 @@ import java.util.Map;
  */
 public class URLRequest {
 
-	private String urlString;
-	private URLConnection urlConnection;
-	private byte[] HTTPBody;
-	private Exception error;
-	
-	public static URLRequest requestWithURLString(String url) {
-		return new URLRequest(url);
-	}
-	
-	/**
-	 Contructor for a new request.
-	 
-	 @param urlString A {@link String} representation of the resource URL.
-	 */
-	public URLRequest(String urlString) {
-		this.urlString = urlString;
-		this.urlConnection = null;
-		this.HTTPBody = null;
-	}
-	
-	public byte[] getHTTPBody() {
-		return HTTPBody;
-	}
+    private String urlString;
+    private URLConnection urlConnection;
+    private byte[] HTTPBody;
+    private Exception error;
 
-	public void setHTTPBody(byte[] HTTPBody) {
-		this.HTTPBody = HTTPBody;
-	}
+    public static URLRequest requestWithURLString(String url) {
+        return new URLRequest(url);
+    }
 
-	public Exception getException() {
-		return this.error;
-	}
+    /**
+     Contructor for a new request.
 
-	public URLConnection getURLConnection() {
-		if (urlConnection == null) {
-			try {
-				urlConnection = new URL(this.urlString).openConnection();
-			} catch (Exception e) {
-				this.error = e;
-			}
-		}
-		return urlConnection;
-	}
-	
-	public HttpURLConnection getHttpURLConnection() {
-		return ((HttpURLConnection)getURLConnection());
-	}
+     @param urlString A {@link String} representation of the resource URL.
+     */
+    public URLRequest(String urlString) {
+        this.urlString = urlString;
+        this.urlConnection = null;
+        this.HTTPBody = null;
+    }
 
-	public void setRequestProperty(String key, String value) {
-		getURLConnection().setRequestProperty(key, value);
-	}
+    public byte[] getHTTPBody() {
+        return HTTPBody;
+    }
 
-	public void setDoOutput(boolean b) {
-		getURLConnection().setDoOutput(b);
-	}
+    public void setHTTPBody(byte[] HTTPBody) {
+        this.HTTPBody = HTTPBody;
+    }
 
-	public OutputStream getOutputStream() throws IOException {
-		return getURLConnection().getOutputStream();
-	}
+    public Exception getException() {
+        return this.error;
+    }
 
-	public InputStream getInputStream() throws IOException {
-		return getURLConnection().getInputStream();
-	}
+    public URLConnection getURLConnection() {
+        if (urlConnection == null) {
+            try {
+                urlConnection = new URL(this.urlString).openConnection();
+            } catch (Exception e) {
+                this.error = e;
+            }
+        }
+        return urlConnection;
+    }
 
-	public int getResponseCode() throws IOException {
-		return getHttpURLConnection().getResponseCode();
-	}
+    public HttpURLConnection getHttpURLConnection() {
+        return ((HttpURLConnection)getURLConnection());
+    }
 
-	public String getContentType() {
-		return getHttpURLConnection().getContentType();
-	}
+    public void setRequestProperty(String key, String value) {
+        getURLConnection().setRequestProperty(key, value);
+    }
 
-	public void setRequestMethod(String method) {
-		try {
-			getHttpURLConnection().setRequestMethod(method);
-		} catch (ProtocolException e) {
-			this.error = e;
-		}
-	}
+    public void setDoOutput(boolean b) {
+        getURLConnection().setDoOutput(b);
+    }
 
-	public void setConnectTimeout(int timeout) {
-		getHttpURLConnection().setReadTimeout(timeout);
-	}
+    public OutputStream getOutputStream() throws IOException {
+        return getURLConnection().getOutputStream();
+    }
 
-	public Map<String, List<String>> getHeaderFields() {
-		return getHttpURLConnection().getHeaderFields();
-	}
+    public InputStream getInputStream() throws IOException {
+        return getURLConnection().getInputStream();
+    }
+
+    public int getResponseCode() throws IOException {
+        return getHttpURLConnection().getResponseCode();
+    }
+
+    public String getContentType() {
+        return getHttpURLConnection().getContentType();
+    }
+
+    public void setRequestMethod(String method) {
+        try {
+            getHttpURLConnection().setRequestMethod(method);
+        } catch (ProtocolException e) {
+            this.error = e;
+        }
+    }
+
+    public void setConnectTimeout(int timeout) {
+        getHttpURLConnection().setReadTimeout(timeout);
+    }
+
+    public Map<String, List<String>> getHeaderFields() {
+        return getHttpURLConnection().getHeaderFields();
+    }
 }
