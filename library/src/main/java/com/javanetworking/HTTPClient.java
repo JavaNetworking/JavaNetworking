@@ -39,229 +39,229 @@ public class HTTPClient {
 
 	/**
 	 The URL used for constructing the URL request.
+	*/
+	private String baseURL;
+
+	/**
+	 The String encoding used in URL requests. Defaults to {@code Charset.forName("UTF-8")}
 	 */
-    private String baseURL;
+	private Charset stringEncoding;
 
-    /**
-     The String encoding used in URL requests. Defaults to {@code Charset.forName("UTF-8")}
-     */
-    private Charset stringEncoding;
-
-    /**
-     {@link HTTPClientParameterEncoding} value indicate how HTTP body parameters are
+	/**
+	 {@link HTTPClientParameterEncoding} value indicate how HTTP body parameters are
 		encoded for requests other than 'GET', 'HEAD' and 'DELETE'.
 
-     Defaults to {@code HTTPClientParameterEncoding.FormURLParameterEncoding}
-     */
-    public enum HTTPClientParameterEncoding {
-        FormURLParameterEncoding,
-        JSONParameterEncoding
-    }
-    private HTTPClientParameterEncoding parameterEncoding;
+	 Defaults to {@code HTTPClientParameterEncoding.FormURLParameterEncoding}
+	 */
+	public enum HTTPClientParameterEncoding {
+		FormURLParameterEncoding,
+		JSONParameterEncoding
+	}
+	private HTTPClientParameterEncoding parameterEncoding;
 
-    /**
-     The {@link OperationQueue} used to handle enqueue {@link URLConnectionOperation}s for client.
-     */
-    private OperationQueue operationQueue;
+	/**
+	 The {@link OperationQueue} used to handle enqueue {@link URLConnectionOperation}s for client.
+	 */
+	private OperationQueue operationQueue;
 
-    /**
-     {@link Map<String, String>} of default headers used when constructing HTTP requests.
-     */
-    private Map<String, String> defaultHeaders;
+	/**
+	 {@link Map<String, String>} of default headers used when constructing HTTP requests.
+	 */
+	private Map<String, String> defaultHeaders;
 
-    /**
+	/**
 	 Attempts to register a subclasses of {@link HTTPURLRequestOperation}.
-	 
-	 Falls back to {@code HTTPURLRequestOperation.class}, if registering of operation class fails. 
-	 
+
+	 Falls back to {@code HTTPURLRequestOperation.class}, if registering of operation class fails.
+
 	 Defaults to {@code HTTPURLRequestOperation.class}.
-     */
-    private List<String> registeredOperationClassNames;
+	 */
+	private List<String> registeredOperationClassNames;
 
-    /**
-     A boolean value indicating if the HTTPClient should be asynchronous. Default is true.
-     */
-    private boolean asynchronous = true;
+	/**
+	 A boolean value indicating if the HTTPClient should be asynchronous. Default is true.
+	 */
+	private boolean asynchronous = true;
 
-    /**
-     Static contructor.
-     */
-    public static HTTPClient clientWithBaseURL(String baseURL) {
-        return new HTTPClient(baseURL);
-    }
+	/**
+	 Static contructor.
+	 */
+	public static HTTPClient clientWithBaseURL(String baseURL) {
+		return new HTTPClient(baseURL);
+	}
 
-    /**
-     Default constructor.
-     */
-    public HTTPClient(String baseURL) {
-        if (baseURL == null) {
-            throw new NullPointerException("baseURL cannot be null.");
-        }
-        if (baseURL.isEmpty()) {
-            throw new IllegalArgumentException("baseURL connot be empty");
-        }
-        if (!(baseURL.charAt(baseURL.length()-1) == '/')) {
-			baseURL = String.format("%s/", baseURL);
+	/**
+	 Default constructor.
+	 */
+	public HTTPClient(String baseURL) {
+		if (baseURL == null) {
+			throw new NullPointerException("baseURL cannot be null.");
 		}
-        this.baseURL = baseURL;
+		if (baseURL.isEmpty()) {
+			throw new IllegalArgumentException("baseURL connot be empty");
+		}
+		if (!(baseURL.charAt(baseURL.length()-1) == '/')) {
+			baseURL = String.format("%s/", baseURL);
+			}
+		this.baseURL = baseURL;
 
-        stringEncoding = Charset.forName("UTF-8");
-        parameterEncoding = HTTPClientParameterEncoding.FormURLParameterEncoding;
+		stringEncoding = Charset.forName("UTF-8");
+		parameterEncoding = HTTPClientParameterEncoding.FormURLParameterEncoding;
 
-        this.registeredOperationClassNames = new ArrayList<String>();
-        this.registeredOperationClassNames.add(HTTPURLRequestOperation.class.getSimpleName());
+		this.registeredOperationClassNames = new ArrayList<String>();
+		this.registeredOperationClassNames.add(HTTPURLRequestOperation.class.getSimpleName());
 
-        this.defaultHeaders = new HashMap<String, String>();
+		this.defaultHeaders = new HashMap<String, String>();
 
-        String javaCommand = System.getProperty("sun.java.command");
-        String osName = System.getProperty("os.name");
-        String osVersion = System.getProperty("os.version");
-        String javaVersion = System.getProperty("java.version");        
-        this.setDefaultHeader("User-Agent", String.format("%s (%s %s) Java/%s", javaCommand, osName, osVersion, javaVersion));
+		String javaCommand = System.getProperty("sun.java.command");
+		String osName = System.getProperty("os.name");
+		String osVersion = System.getProperty("os.version");
+		String javaVersion = System.getProperty("java.version");
+		this.setDefaultHeader("User-Agent", String.format("%s (%s %s) Java/%s", javaCommand, osName, osVersion, javaVersion));
 
-        this.operationQueue = new OperationQueue();
-    }
+		this.operationQueue = new OperationQueue();
+	}
 
-    @Override
-    public String toString() {
-        return String.format("<HTTPClient baseURL:%s>", this.baseURL);
-    }
+	@Override
+	public String toString() {
+		return String.format("<HTTPClient baseURL:%s>", this.baseURL);
+	}
 
-    /**
-     Gets the current clients {@link OperationQueue}.
-     */
-    public OperationQueue getOperationQueue() {
+	/**
+	 Gets the current clients {@link OperationQueue}.
+	 */
+	public OperationQueue getOperationQueue() {
 		return operationQueue;
 	}
 
-    /**
-     Get the query string parameter {@link Charset} encoding.
-     */
-    public Charset getStringEncoding() {
+	/**
+	 Get the query string parameter {@link Charset} encoding.
+	 */
+	public Charset getStringEncoding() {
 		return this.stringEncoding;
-    }
+	}
 
-    public boolean registerHTTPOperationClass(Class<?> operationClass) {
-        if (operationClass.isAssignableFrom(HTTPURLRequestOperation.class)) {
-            return false;
-        }
+	public boolean registerHTTPOperationClass(Class<?> operationClass) {
+		if (operationClass.isAssignableFrom(HTTPURLRequestOperation.class)) {
+			return false;
+		}
 
-        if (this.registeredOperationClassNames.size() == 0) {
+		if (this.registeredOperationClassNames.size() == 0) {
 			this.registeredOperationClassNames.add(operationClass.getSimpleName());
 		} else {
 			this.registeredOperationClassNames.set(0, operationClass.getSimpleName());
 		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     Add default header value to default headers.
+	/**
+	 Add default header value to default headers.
 
-     @param header A string value representing the header name.
-     @param value A string value representing the header field value.
-     */
-    public void setDefaultHeader(String header, String value) {
-        this.defaultHeaders.put(header, value);
-    }
+	 @param header A string value representing the header name.
+	 @param value A string value representing the header field value.
+	 */
+	public void setDefaultHeader(String header, String value) {
+		this.defaultHeaders.put(header, value);
+	}
 
-    public void setAuthorizationHeaderWithUsernameAndPassword(String username, String password) {
+	public void setAuthorizationHeaderWithUsernameAndPassword(String username, String password) {
 		String basicAuthCredentials = String.format("%s:%s", username, password);
 		this.setDefaultHeader("Authorization", String.format("Basic %s", Base64EncodedStringFromString(basicAuthCredentials)));
-    }
+	}
 
-    /**
-     Set the {@link HTTPClientParameterEncoding} parameter encoding value.
+	/**
+	 Set the {@link HTTPClientParameterEncoding} parameter encoding value.
 
-     @param parameterEncoding A {@link HTTPClientParameterEncoding} value indicating the encoding to be used.
-     */
-    public void setParameterEncoding(HTTPClientParameterEncoding parameterEncoding) {
-        this.parameterEncoding = parameterEncoding;
-    }
+	 @param parameterEncoding A {@link HTTPClientParameterEncoding} value indicating the encoding to be used.
+	 */
+	public void setParameterEncoding(HTTPClientParameterEncoding parameterEncoding) {
+		this.parameterEncoding = parameterEncoding;
+	}
 
-    /**
-     Creates a query string from parameters with given {@link Charset} encoding.
+	/**
+	 Creates a query string from parameters with given {@link Charset} encoding.
 
-     @param parameters A {@link Map} object with string keys and object values.
-     @param stringEncoding A {@link Charset} value representing the wanted string encoding.
+	 @param parameters A {@link Map} object with string keys and object values.
+	 @param stringEncoding A {@link Charset} value representing the wanted string encoding.
 
 	 @return A query string from parameters with desired string encoding.
-     */
-    public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
-        StringBuilder stringBuilder = new StringBuilder();
-        
-        List<QueryStringPair> paramPairs = QueryStringPairsFromMap(parameters);
-        for (int i=0; i<paramPairs.size(); i++) {
-        	QueryStringPair pair = paramPairs.get(i);
-        	
-            stringBuilder.append(pair.URLEncodedStringValueWithEncoding(stringEncoding));
-            if (i!=paramPairs.size()-1) {
-            	stringBuilder.append('&');
+	 */
+	public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		List<QueryStringPair> paramPairs = QueryStringPairsFromMap(parameters);
+		for (int i=0; i<paramPairs.size(); i++) {
+			QueryStringPair pair = paramPairs.get(i);
+
+			stringBuilder.append(pair.URLEncodedStringValueWithEncoding(stringEncoding));
+			if (i!=paramPairs.size()-1) {
+				stringBuilder.append('&');
 			}
-        }
+		}
 
-        return stringBuilder.toString();
-    }
+		return stringBuilder.toString();
+	}
 
-    /**
-     Return a {@link List} of {@link QueryStringPair}s from a {@link Map}.
+	/**
+	 Return a {@link List} of {@link QueryStringPair}s from a {@link Map}.
 
-     @param parameters A {@link Map} object with string keys and object values.
+	 @param parameters A {@link Map} object with string keys and object values.
 
-     @return A {@link List} of {@link QueryStringPair} objects.
-     */
-    public static List<QueryStringPair> QueryStringPairsFromMap(Map<String, Object> parameters) {
-        return QueryStringPairsFromKeyAndValue(null, parameters);
-    }
+	 @return A {@link List} of {@link QueryStringPair} objects.
+	 */
+	public static List<QueryStringPair> QueryStringPairsFromMap(Map<String, Object> parameters) {
+		return QueryStringPairsFromKeyAndValue(null, parameters);
+	}
 
-    /**
+	/**
 	 Return a {@link List} of {@link QueryStringPair}s from a string value key and object value.
-	 
+
 	 @param key A string value representing the key value in the query parameter.
 	 @param valey An object value representing the query parameter value.
 
 	 @return A {@link List} of {@link QueryStringPair} objects generated from key and value.
-     */
-    public static List<QueryStringPair> QueryStringPairsFromKeyAndValue(String key, Object value) {
-        List<QueryStringPair> queryStringComponents = new ArrayList<QueryStringPair>();
+	 */
+	public static List<QueryStringPair> QueryStringPairsFromKeyAndValue(String key, Object value) {
+		List<QueryStringPair> queryStringComponents = new ArrayList<QueryStringPair>();
 
-        if (value instanceof Map) {
-            Map<String, ?> map = (Map<String, ?>) value;
+		if (value instanceof Map) {
+			Map<String, ?> map = (Map<String, ?>) value;
 
-            Set<String> nestedKeys = map.keySet();
-            for (String nestedKey : nestedKeys) {
-                Object nestedValue = map.get(nestedKey);
-                if (nestedValue != null) {
-                    queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(((key != null) ? String.format("%s[%s]", key, nestedKey) : nestedKey), nestedValue));
-                }
-            }
-        } else if (value instanceof List) {
-            List<?> list = (List<?>) value;
-            for (Object nestedValue : list) {
-                queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(String.format("%s[]", key), nestedValue));
-            }
-        } else if (value instanceof Set) {
-            Set<?> set = (Set<?>) value;
-            for (Object object : set) {
-                queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(key, object));
-            }
-        } else {
-            queryStringComponents.add(new QueryStringPair(key, value));
-        }
+			Set<String> nestedKeys = map.keySet();
+			for (String nestedKey : nestedKeys) {
+				Object nestedValue = map.get(nestedKey);
+				if (nestedValue != null) {
+					queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(((key != null) ? String.format("%s[%s]", key, nestedKey) : nestedKey), nestedValue));
+				}
+			}
+		} else if (value instanceof List) {
+			List<?> list = (List<?>) value;
+			for (Object nestedValue : list) {
+				queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(String.format("%s[]", key), nestedValue));
+			}
+		} else if (value instanceof Set) {
+			Set<?> set = (Set<?>) value;
+			for (Object object : set) {
+				queryStringComponents.addAll(QueryStringPairsFromKeyAndValue(key, object));
+			}
+		} else {
+			queryStringComponents.add(new QueryStringPair(key, value));
+		}
 
-        return queryStringComponents;
-    }
+		return queryStringComponents;
+	}
 
-    /**
+	/**
 	 Return a JSON string from a {@link Map} object.
 
-	 @param parameters A {@link Map} of the query parameters. 
+	 @param parameters A {@link Map} of the query parameters.
 
-	 @return A JSON string generated from query parameters. 
-     */
+	 @return A JSON string generated from query parameters.
+	 */
 	public static String JsonStringFromMap(Map<String, Object> parameters) {
 		return new Gson().toJson(parameters);
-    }
+	}
 
 	/**
 	 Get Base64 encoded string from input string.
@@ -272,273 +272,272 @@ public class HTTPClient {
 	 */
 	public static String Base64EncodedStringFromString(String string) {
 		byte[] data = string.getBytes();
-        int length = data.length;
+		int length = data.length;
 
-        byte[] input = data;
-        byte[] output = new byte[((length + 2) / 3) * 4];
+		byte[] input = data;
+		byte[] output = new byte[((length + 2) / 3) * 4];
 
-        for (int i = 0; i < length; i += 3) {
-            int value = 0;
-            for (int j = i; j < (i + 3); j++) {
-                value <<= 8;
-                if (j < length) {
-                    value |= (0xFF & input[j]);
-                }
-            }
+		for (int i = 0; i < length; i += 3) {
+			int value = 0;
+			for (int j = i; j < (i + 3); j++) {
+				value <<= 8;
+				if (j < length) {
+					value |= (0xFF & input[j]);
+				}
+			}
 
-            String kBase64EncodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			String kBase64EncodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-            int idx = (i / 3) * 4;
-            output[idx + 0] = (byte) kBase64EncodingTable.charAt((value >> 18) & 0x3F);
-            output[idx + 1] = (byte) kBase64EncodingTable.charAt((value >> 12) & 0x3F);
-            output[idx + 2] = (byte) ((i + 1) < length ? kBase64EncodingTable.charAt((value >> 6)  & 0x3F) : '=');
-            output[idx + 3] = (byte) ((i + 2) < length ? kBase64EncodingTable.charAt((value >> 0)  & 0x3F) : '=');
-        }
+			int idx = (i / 3) * 4;
+			output[idx + 0] = (byte) kBase64EncodingTable.charAt((value >> 18) & 0x3F);
+			output[idx + 1] = (byte) kBase64EncodingTable.charAt((value >> 12) & 0x3F);
+			output[idx + 2] = (byte) ((i + 1) < length ? kBase64EncodingTable.charAt((value >> 6)  & 0x3F) : '=');
+			output[idx + 3] = (byte) ((i + 2) < length ? kBase64EncodingTable.charAt((value >> 0)  & 0x3F) : '=');
+		}
 
-        return new String(output);
-    }
+		return new String(output);
+	}
 
 	/**
 	 Encode an input string with the desired string encoding.
 
-	 @param input The string input to be encoded. 
+	 @param input The string input to be encoded.
 	 @param stringEncoding The {@link Charset} value to encode the string by.
 	 */
-    public static String encode(String input, Charset stringEncoding) {
-        if (input == null) {
+	public static String encode(String input, Charset stringEncoding) {
+		if (input == null) {
 			return "";
 		}
-    	StringBuilder resultStr = new StringBuilder();
-        
-        input = new String(Charset.forName(stringEncoding.name()).encode(input).array());
+		StringBuilder resultStr = new StringBuilder();
 
-        for (char ch : input.toCharArray()) {
-            if (isUnsafe(ch)) {
-                resultStr.append('%');
-                resultStr.append(toHex(ch / 16));
-                resultStr.append(toHex(ch % 16));
-            } else {
-                resultStr.append(ch);
-            }
-        }
-        return resultStr.toString();
-    }
+		input = new String(Charset.forName(stringEncoding.name()).encode(input).array());
 
-    private static char toHex(int ch) {
-        return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
-    }
+		for (char ch : input.toCharArray()) {
+			if (isUnsafe(ch)) {
+				resultStr.append('%');
+				resultStr.append(toHex(ch / 16));
+				resultStr.append(toHex(ch % 16));
+			} else {
+				resultStr.append(ch);
+			}
+		}
+		return resultStr.toString();
+	}
 
-    private static boolean isUnsafe(char ch) {
-        if (ch > 128 || ch < 0)
-            return true;
-        return " %$&+,/:!;=?@<>#%".indexOf(ch) >= 0;
-    }
+	private static char toHex(int ch) {
+		return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
+	}
 
-    private static String PercentEscapedQueryStringKeyFromStringWithEncoding(String field, Charset stringEncoding) {
-        return HTTPClient.encode(field, stringEncoding);
-    }
+	private static boolean isUnsafe(char ch) {
+		if (ch > 128 || ch < 0)
+			return true;
+		return " %$&+,/:!;=?@<>#%".indexOf(ch) >= 0;
+	}
 
-    private static String PercentEscapedQueryStringValueFromStringWithEncoding(String field, Charset stringEncoding) {
-        return HTTPClient.encode(field, stringEncoding);
-    }
+	private static String PercentEscapedQueryStringKeyFromStringWithEncoding(String field, Charset stringEncoding) {
+		return HTTPClient.encode(field, stringEncoding);
+	}
 
-    /**
-     Inner class representing a query string pair.
-     */
-    private static class QueryStringPair {
+	private static String PercentEscapedQueryStringValueFromStringWithEncoding(String field, Charset stringEncoding) {
+		return HTTPClient.encode(field, stringEncoding);
+	}
 
-        private String field;
-        private String value;
+	/**
+	 Inner class representing a query string pair.
+	 */
+	private static class QueryStringPair {
 
-        public QueryStringPair(String field, Object value) {
-            this.field = field;
-            this.value = (String)value;
-        }
+		private String field;
+		private String value;
 
-        public String URLEncodedStringValueWithEncoding(Charset stringEncoding) {
-            if (this.value == null) {
-                return PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding);
-            } else {
-                return String.format("%s=%s", PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding),
-                        PercentEscapedQueryStringValueFromStringWithEncoding(value, stringEncoding));
-            }
-        }
-    }
+		public QueryStringPair(String field, Object value) {
+			this.field = field;
+			this.value = (String)value;
+		}
 
-    /**
-     Sets the asynchronous boolean indicating if HTTPClient should be asynchronous or synchronous. Default is true.
+		public String URLEncodedStringValueWithEncoding(Charset stringEncoding) {
+			if (this.value == null) {
+				return PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding);
+			} else {
+				return String.format("%s=%s", PercentEscapedQueryStringKeyFromStringWithEncoding(field, stringEncoding),
+						PercentEscapedQueryStringValueFromStringWithEncoding(value, stringEncoding));
+			}
+		}
+	}
 
-     @param asynchronous A boolean value indicating if the clients requests should be asynchronous.
-     */
-    public void setAsynchronous(boolean asynchronous) {
+	/**
+	 Sets the asynchronous boolean indicating if HTTPClient should be asynchronous or synchronous. Default is true.
+
+	 @param asynchronous A boolean value indicating if the clients requests should be asynchronous.
+	 */
+	public void setAsynchronous(boolean asynchronous) {
 		this.asynchronous = asynchronous;
-    }
+	}
 
-    public void enqueueHTTPURLRequestOperation(HTTPURLRequestOperation operation) {
-    	this.operationQueue.addOperation(operation);
-    }
+	public void enqueueHTTPURLRequestOperation(HTTPURLRequestOperation operation) {
+		this.operationQueue.addOperation(operation);
+	}
 
-    public void prepareHTTPURLRequestOperationForExecution(HTTPURLRequestOperation operation) {
-    	if (asynchronous) {
-    		this.enqueueHTTPURLRequestOperation(operation);
+	public void prepareHTTPURLRequestOperationForExecution(HTTPURLRequestOperation operation) {
+		if (asynchronous) {
+			this.enqueueHTTPURLRequestOperation(operation);
 		} else {
 			operation.startSynchronous();
 		}
-    }
+	}
 
-    /**
-     Create a {@link URLRequest} connection with method, path and parameters.
+	/**
+	 Create a {@link URLRequest} connection with method, path and parameters.
 
 	 @param method The HTTP method to be used.
 	 @param path The resource path of the {@link URLReqeust}.
 	 @param parameters The query string parameters.
 
 	 @return A {@link URLRequest} connection to be used by an operation.
-     */
-    public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
-    	if (path.charAt(0) == '/') {
+	 */
+	public URLRequest connectionWithMethodPathAndParameters(String method, String path, Map<String, Object> parameters) {
+		if (path.charAt(0) == '/') {
 			path = path.substring(1);
 		}
-        String urlString = String.format("%s%s", this.baseURL, path);
-        
-        // Add GET/HEAD/DELETE parameters to URL string
-        if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
+		String urlString = String.format("%s%s", this.baseURL, path);
+
+		// Add GET/HEAD/DELETE parameters to URL string
+		if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
 			urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, getStringEncoding()));
-        }
-        
-        URLRequest request = URLRequest.requestWithURLString(urlString);
-        request.setRequestMethod(method);
-        request.setConnectTimeout(500);
-        for (String key : this.defaultHeaders.keySet()) {
-        	request.setRequestProperty(key, this.defaultHeaders.get(key));
-        }
-        
-        // Set POST/PUT requestBody on operation 
-        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
+		}
+
+		URLRequest request = URLRequest.requestWithURLString(urlString);
+		request.setRequestMethod(method);
+		request.setConnectTimeout(500);
+		for (String key : this.defaultHeaders.keySet()) {
+			request.setRequestProperty(key, this.defaultHeaders.get(key));
+		}
+
+		// Set POST/PUT requestBody on operation
+		if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
 			String charsetName = getStringEncoding().name();
 
-            switch (this.parameterEncoding) {
-                case FormURLParameterEncoding:
+			switch (this.parameterEncoding) {
+				case FormURLParameterEncoding:
 					request.setRequestProperty("Content-Type", String.format("application/x-www-form-urlencoded; charset=%s", charsetName));
 					request.setHTTPBody(HTTPClient.queryStringFromParametersWithCharset(parameters, getStringEncoding()).getBytes(getStringEncoding()));
-                    break;
-                case JSONParameterEncoding:
+					break;
+				case JSONParameterEncoding:
 					request.setRequestProperty("Content-Type", String.format("application/json; charset=%s", charsetName));
-                    request.setHTTPBody(HTTPClient.JsonStringFromMap(parameters).getBytes(getStringEncoding()));
-                    break;
-            }
-        }
+					request.setHTTPBody(HTTPClient.JsonStringFromMap(parameters).getBytes(getStringEncoding()));
+					break;
+			}
+		}
 
-        return request;
-    }
+		return request;
+	}
 
-    /**
-     Creates a {@link HTTPURLRequestOperation} with an {@link URLRequest} and a {@link HTTPCompletion} callback.
+	/**
+	 Creates a {@link HTTPURLRequestOperation} with an {@link URLRequest} and a {@link HTTPCompletion} callback.
 
-	 @param request The {@link URLRequest} connection to be used in this operation. 
+	 @param request The {@link URLRequest} connection to be used in this operation.
 	 @param completion The {@link HTTPCompletion} callback method that return the response of the operation.
 
 	 @return A {@link HTTPURLRequestOperation} based on the {@code registeredOperationClassNames}.
-     */
-    public HTTPURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
+	 */
+	public HTTPURLRequestOperation operationWithURLRequest(URLRequest request, HTTPCompletion completion) {
 
-        HTTPURLRequestOperation operation = null;
+		HTTPURLRequestOperation operation = null;
 
-        for (String className : this.registeredOperationClassNames) {
-            try {
-                Class<?> cl = Class.forName("com.javanetworking."+className);
-                Constructor<?>[] constructors = cl.getConstructors();
-                
-                Class<?>[] paramsTypes = null;
-                for (Constructor<?> constructor : constructors) {
-                	paramsTypes = constructor.getParameterTypes();
-                	if (paramsTypes.length == 2) {
-                		break;
+		for (String className : this.registeredOperationClassNames) {
+			try {
+				Class<?> cl = Class.forName("com.javanetworking."+className);
+				Constructor<?>[] constructors = cl.getConstructors();
+
+				Class<?>[] paramsTypes = null;
+				for (Constructor<?> constructor : constructors) {
+					paramsTypes = constructor.getParameterTypes();
+					if (paramsTypes.length == 2) {
+						break;
 					}
 				}
-                Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1]);
-                operation = (HTTPURLRequestOperation) constructor.newInstance(request, null);
-                operation.setCompletion(completion);
-                
-                break;
-                
-            } catch (Exception e) {
+				Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1]);
+				operation = (HTTPURLRequestOperation) constructor.newInstance(request, null);
+				operation.setCompletion(completion);
+
+				break;
+
+			} catch (Exception e) {
 				operation = HTTPURLRequestOperation.operationWithURLRequest(request, completion);
 				break;
 			}
-        }
-        
-        return operation;
-    }
+		}
 
-    /**
-     Creates an {@link HTTPURLRequestOperation} with a `GET` request. By default the client is asynchronous
-     and the operation is enqueued on the clients {@link OperationQueue}.
+		return operation;
+	}
 
-     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
-     @param parameters The parameters to be encoded and appended as the query string for the request URL.
-     @param completion A callback object that is called when the request operation finishes.
-     */
-    public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-        URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
-        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.prepareHTTPURLRequestOperationForExecution(operation);
-    }
+	/**
+	 Creates an {@link HTTPURLRequestOperation} with a `GET` request. By default the client is asynchronous
+	 and the operation is enqueued on the clients {@link OperationQueue}.
 
-    /**
-     Creates an {@link HTTPURLRequestOperation} with a `POST` request. By default the client is asynchronous
-     and the operation is enqueued on the clients {@link OperationQueue}.
+	 @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+	 @param parameters The parameters to be encoded and appended as the query string for the request URL.
+	 @param completion A callback object that is called when the request operation finishes.
+	 */
+	public void GET(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+		URLRequest request = this.connectionWithMethodPathAndParameters("GET", path, parameters);
+		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+		this.prepareHTTPURLRequestOperationForExecution(operation);
+	}
 
-     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
-     @param parameters The parameters to be encoded and appended as the query string for the request URL.
-     @param completion A callback object that is called when the request operation finishes.
-     */
-    public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
-        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.prepareHTTPURLRequestOperationForExecution(operation);
-    }
+	/**
+	 Creates an {@link HTTPURLRequestOperation} with a `POST` request. By default the client is asynchronous
+	 and the operation is enqueued on the clients {@link OperationQueue}.
 
-    /**
-     Creates an {@link HTTPURLRequestOperation} with a `PUT` request. By default the client is asynchronous
-     and the operation is enqueued on the clients {@link OperationQueue}.
+	 @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+	 @param parameters The parameters to be encoded and appended as the query string for the request URL.
+	 @param completion A callback object that is called when the request operation finishes.
+	 */
+	public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+		URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
+		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+		this.prepareHTTPURLRequestOperationForExecution(operation);
+	}
 
-     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
-     @param parameters The parameters to be encoded and appended as the query string for the request URL.
-     @param completion A callback object that is called when the request operation finishes.
-     */
-    public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
-        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.prepareHTTPURLRequestOperationForExecution(operation);
-    }
+	/**
+	 Creates an {@link HTTPURLRequestOperation} with a `PUT` request. By default the client is asynchronous
+	 and the operation is enqueued on the clients {@link OperationQueue}.
 
-    /**
-     Creates an {@link HTTPURLRequestOperation} with a `PATCH` request. By default the client is asynchronous
-     and the operation is enqueued on the clients {@link OperationQueue}.
+	 @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+	 @param parameters The parameters to be encoded and appended as the query string for the request URL.
+	 @param completion A callback object that is called when the request operation finishes.
+	 */
+	public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+		URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
+		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+		this.prepareHTTPURLRequestOperationForExecution(operation);
+	}
 
-     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
-     @param parameters The parameters to be encoded and appended as the query string for the request URL.
-     @param completion A callback object that is called when the request operation finishes.
-     */
-    public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+	/**
+	 Creates an {@link HTTPURLRequestOperation} with a `PATCH` request. By default the client is asynchronous
+	 and the operation is enqueued on the clients {@link OperationQueue}.
+
+	 @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+	 @param parameters The parameters to be encoded and appended as the query string for the request URL.
+	 @param completion A callback object that is called when the request operation finishes.
+	 */
+	public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
 		URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
 		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
 		this.prepareHTTPURLRequestOperationForExecution(operation);
-   	}
+	}
 
-    /**
-     Creates an {@link HTTPURLRequestOperation} with a `DELETE` request. By default the client is asynchronous
-     and the operation is enqueued on the clients {@link OperationQueue}.
+	/**
+	 Creates an {@link HTTPURLRequestOperation} with a `DELETE` request. By default the client is asynchronous
+	 and the operation is enqueued on the clients {@link OperationQueue}.
 
-     @param path The path to be appended to the HTTP client's base URL and used as the request URL.
-     @param parameters The parameters to be encoded and appended as the query string for the request URL.
-     @param completion A callback object that is called when the request operation finishes.
-     */
-    public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
-        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-        this.prepareHTTPURLRequestOperationForExecution(operation);
-    }
-
+	 @param path The path to be appended to the HTTP client's base URL and used as the request URL.
+	 @param parameters The parameters to be encoded and appended as the query string for the request URL.
+	 @param completion A callback object that is called when the request operation finishes.
+	 */
+	public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
+		URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
+		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+		this.prepareHTTPURLRequestOperationForExecution(operation);
+	}
 }
