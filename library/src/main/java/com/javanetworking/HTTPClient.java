@@ -37,9 +37,9 @@ import java.util.Set;
  */
 public class HTTPClient {
 
-	/**
+    /**
 	 The URL used for constructing the URL request.
-	 */
+    */
     private String baseURL;
 
     /**
@@ -71,9 +71,9 @@ public class HTTPClient {
 
     /**
 	 Attempts to register a subclasses of {@link HTTPURLRequestOperation}.
-	 
-	 Falls back to {@code HTTPURLRequestOperation.class}, if registering of operation class fails. 
-	 
+
+	 Falls back to {@code HTTPURLRequestOperation.class}, if registering of operation class fails.
+
 	 Defaults to {@code HTTPURLRequestOperation.class}.
      */
     private List<String> registeredOperationClassNames;
@@ -101,8 +101,8 @@ public class HTTPClient {
             throw new IllegalArgumentException("baseURL connot be empty");
         }
         if (!(baseURL.charAt(baseURL.length()-1) == '/')) {
-			baseURL = String.format("%s/", baseURL);
-		}
+            baseURL = String.format("%s/", baseURL);
+		    }
         this.baseURL = baseURL;
 
         stringEncoding = Charset.forName("UTF-8");
@@ -116,7 +116,7 @@ public class HTTPClient {
         String javaCommand = System.getProperty("sun.java.command");
         String osName = System.getProperty("os.name");
         String osVersion = System.getProperty("os.version");
-        String javaVersion = System.getProperty("java.version");        
+        String javaVersion = System.getProperty("java.version");
         this.setDefaultHeader("User-Agent", String.format("%s (%s %s) Java/%s", javaCommand, osName, osVersion, javaVersion));
 
         this.operationQueue = new OperationQueue();
@@ -166,8 +166,8 @@ public class HTTPClient {
     }
 
     public void setAuthorizationHeaderWithUsernameAndPassword(String username, String password) {
-		String basicAuthCredentials = String.format("%s:%s", username, password);
-		this.setDefaultHeader("Authorization", String.format("Basic %s", Base64EncodedStringFromString(basicAuthCredentials)));
+        String basicAuthCredentials = String.format("%s:%s", username, password);
+        this.setDefaultHeader("Authorization", String.format("Basic %s", Base64EncodedStringFromString(basicAuthCredentials)));
     }
 
     /**
@@ -189,11 +189,11 @@ public class HTTPClient {
      */
     public static String queryStringFromParametersWithCharset(Map<String, Object> parameters, Charset stringEncoding) {
         StringBuilder stringBuilder = new StringBuilder();
-        
+
         List<QueryStringPair> paramPairs = QueryStringPairsFromMap(parameters);
         for (int i=0; i<paramPairs.size(); i++) {
         	QueryStringPair pair = paramPairs.get(i);
-        	
+
             stringBuilder.append(pair.URLEncodedStringValueWithEncoding(stringEncoding));
             if (i!=paramPairs.size()-1) {
             	stringBuilder.append('&');
@@ -216,7 +216,7 @@ public class HTTPClient {
 
     /**
 	 Return a {@link List} of {@link QueryStringPair}s from a string value key and object value.
-	 
+
 	 @param key A string value representing the key value in the query parameter.
 	 @param valey An object value representing the query parameter value.
 
@@ -255,9 +255,9 @@ public class HTTPClient {
     /**
 	 Return a JSON string from a {@link Map} object.
 
-	 @param parameters A {@link Map} of the query parameters. 
+	 @param parameters A {@link Map} of the query parameters.
 
-	 @return A JSON string generated from query parameters. 
+	 @return A JSON string generated from query parameters.
      */
 	public static String JsonStringFromMap(Map<String, Object> parameters) {
 		return new Gson().toJson(parameters);
@@ -301,7 +301,7 @@ public class HTTPClient {
 	/**
 	 Encode an input string with the desired string encoding.
 
-	 @param input The string input to be encoded. 
+	 @param input The string input to be encoded.
 	 @param stringEncoding The {@link Charset} value to encode the string by.
 	 */
     public static String encode(String input, Charset stringEncoding) {
@@ -309,7 +309,7 @@ public class HTTPClient {
 			return "";
 		}
     	StringBuilder resultStr = new StringBuilder();
-        
+
         input = new String(Charset.forName(stringEncoding.name()).encode(input).array());
 
         for (char ch : input.toCharArray()) {
@@ -400,20 +400,20 @@ public class HTTPClient {
 			path = path.substring(1);
 		}
         String urlString = String.format("%s%s", this.baseURL, path);
-        
+
         // Add GET/HEAD/DELETE parameters to URL string
         if (parameters != null && (method.equalsIgnoreCase("GET") || method.equalsIgnoreCase("HEAD") || method.equalsIgnoreCase("DELETE"))) {
 			urlString = String.format("%s%c%s", urlString, (urlString.contains("?") ? '&' : '?'), HTTPClient.queryStringFromParametersWithCharset(parameters, getStringEncoding()));
         }
-        
+
         URLRequest request = URLRequest.requestWithURLString(urlString);
         request.setRequestMethod(method);
         request.setConnectTimeout(500);
         for (String key : this.defaultHeaders.keySet()) {
         	request.setRequestProperty(key, this.defaultHeaders.get(key));
         }
-        
-        // Set POST/PUT requestBody on operation 
+
+        // Set POST/PUT requestBody on operation
         if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
 			String charsetName = getStringEncoding().name();
 
@@ -435,7 +435,7 @@ public class HTTPClient {
     /**
      Creates a {@link HTTPURLRequestOperation} with an {@link URLRequest} and a {@link HTTPCompletion} callback.
 
-	 @param request The {@link URLRequest} connection to be used in this operation. 
+	 @param request The {@link URLRequest} connection to be used in this operation.
 	 @param completion The {@link HTTPCompletion} callback method that return the response of the operation.
 
 	 @return A {@link HTTPURLRequestOperation} based on the {@code registeredOperationClassNames}.
@@ -448,7 +448,7 @@ public class HTTPClient {
             try {
                 Class<?> cl = Class.forName("com.javanetworking."+className);
                 Constructor<?>[] constructors = cl.getConstructors();
-                
+
                 Class<?>[] paramsTypes = null;
                 for (Constructor<?> constructor : constructors) {
                 	paramsTypes = constructor.getParameterTypes();
@@ -459,15 +459,15 @@ public class HTTPClient {
                 Constructor<?> constructor = cl.getConstructor(paramsTypes[0], paramsTypes[1]);
                 operation = (HTTPURLRequestOperation) constructor.newInstance(request, null);
                 operation.setCompletion(completion);
-                
+
                 break;
-                
+
             } catch (Exception e) {
 				operation = HTTPURLRequestOperation.operationWithURLRequest(request, completion);
 				break;
 			}
         }
-        
+
         return operation;
     }
 
@@ -494,7 +494,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void POST(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
+        URLRequest request = this.connectionWithMethodPathAndParameters("POST", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
@@ -508,7 +508,7 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void PUT(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
+        URLRequest request = this.connectionWithMethodPathAndParameters("PUT", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
@@ -522,9 +522,9 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void PATCH(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-		URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
-		HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
-		this.prepareHTTPURLRequestOperationForExecution(operation);
+        URLRequest request = this.connectionWithMethodPathAndParameters("PATCH", path, parameters);
+        HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
+        this.prepareHTTPURLRequestOperationForExecution(operation);
    	}
 
     /**
@@ -536,9 +536,8 @@ public class HTTPClient {
      @param completion A callback object that is called when the request operation finishes.
      */
     public void DELETE(String path, Map<String, Object> parameters, HTTPCompletion completion) {
-    	URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
+        URLRequest request = this.connectionWithMethodPathAndParameters("DELETE", path, parameters);
         HTTPURLRequestOperation operation = this.operationWithURLRequest(request, completion);
         this.prepareHTTPURLRequestOperationForExecution(operation);
     }
-
 }
