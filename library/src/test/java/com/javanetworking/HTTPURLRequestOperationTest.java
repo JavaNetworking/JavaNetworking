@@ -1,4 +1,4 @@
-	package com.javanetworking;
+    package com.javanetworking;
 
 import static org.junit.Assert.*;
 
@@ -11,100 +11,100 @@ import org.junit.*;
 import com.javanetworking.HTTPURLRequestOperation.HTTPCompletion;
 
 public class HTTPURLRequestOperationTest {
-	
-	public static final String BASE_URL = "http://httpbin.org";
-	
-	private HTTPCompletion completionWithCountDownLatch(final CountDownLatch signal, final StringBuilder errorSB, final StringBuilder successSB) {
-		return new HTTPCompletion() {
-			@Override
-			public void failure(URLRequest request, Throwable t) {
-				errorSB.append(t.toString());
+    
+    public static final String BASE_URL = "http://httpbin.org";
+    
+    private HTTPCompletion completionWithCountDownLatch(final CountDownLatch signal, final StringBuilder errorSB, final StringBuilder successSB) {
+        return new HTTPCompletion() {
+            @Override
+            public void failure(URLRequest request, Throwable t) {
+                errorSB.append(t.toString());
 
-				signal.countDown();
-			}
-			@Override
-			public void success(URLRequest request, Object response) {
-				successSB.append(response);
+                signal.countDown();
+            }
+            @Override
+            public void success(URLRequest request, Object response) {
+                successSB.append(response);
 
-				signal.countDown();
-			}
-		};
-	}
+                signal.countDown();
+            }
+        };
+    }
 
-	private void waitForSignalCountDown(CountDownLatch signal) {
-		try {
+    private void waitForSignalCountDown(CountDownLatch signal) {
+        try {
             signal.await(30, TimeUnit.SECONDS); // wait for callback
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	@Test
-	public void testHTTPURLRequestOperationSuccess() {
-		final CountDownLatch signal = new CountDownLatch(1);
+    @Test
+    public void testHTTPURLRequestOperationSuccess() {
+        final CountDownLatch signal = new CountDownLatch(1);
 
-		final StringBuilder errorSB = new StringBuilder();
-		final StringBuilder successSB = new StringBuilder();
+        final StringBuilder errorSB = new StringBuilder();
+        final StringBuilder successSB = new StringBuilder();
 
-		// Request and operation
-		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/get");
+        // Request and operation
+        URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/get");
 
-		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
-		operation.start();
+        HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
+        operation.start();
 
-		waitForSignalCountDown(signal);
+        waitForSignalCountDown(signal);
 
-		// Test values
-		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
-		assertEquals("", errorSB.toString());
+        // Test values
+        assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
+        assertEquals("", errorSB.toString());
 
-		assertTrue(errorSB.toString().isEmpty());
-		assertFalse(successSB.toString().isEmpty());
-	}
-	
-	@Test
-	public void testHTTPURLRequestOperationFailure() {
-		final CountDownLatch signal = new CountDownLatch(1);
+        assertTrue(errorSB.toString().isEmpty());
+        assertFalse(successSB.toString().isEmpty());
+    }
+    
+    @Test
+    public void testHTTPURLRequestOperationFailure() {
+        final CountDownLatch signal = new CountDownLatch(1);
 
-		final StringBuilder errorSB = new StringBuilder();
-		final StringBuilder successSB = new StringBuilder();
+        final StringBuilder errorSB = new StringBuilder();
+        final StringBuilder successSB = new StringBuilder();
 
-		// Request and operation
-		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/404");
+        // Request and operation
+        URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/404");
 
-		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
-		operation.start();
+        HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
+        operation.start();
 
-		waitForSignalCountDown(signal);
+        waitForSignalCountDown(signal);
 
-		// Test values
-		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
-		assertEquals("", successSB.toString());
+        // Test values
+        assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
+        assertEquals("", successSB.toString());
 
-		assertFalse(errorSB.toString().isEmpty());
-		assertTrue(successSB.toString().isEmpty());
-	}
+        assertFalse(errorSB.toString().isEmpty());
+        assertTrue(successSB.toString().isEmpty());
+    }
 
-	@Test
-	public void test500StatusCodeError() throws MalformedURLException {
-		final CountDownLatch signal = new CountDownLatch(1);
+    @Test
+    public void test500StatusCodeError() throws MalformedURLException {
+        final CountDownLatch signal = new CountDownLatch(1);
 
-		final StringBuilder errorSB = new StringBuilder();
-		final StringBuilder successSB = new StringBuilder();
+        final StringBuilder errorSB = new StringBuilder();
+        final StringBuilder successSB = new StringBuilder();
 
-		// Request and operation
-		URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/500");
+        // Request and operation
+        URLRequest request = URLRequest.requestWithURLString(BASE_URL + "/status/500");
 
-		HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
-		operation.start();
+        HTTPURLRequestOperation operation = HTTPURLRequestOperation.operationWithURLRequest(request, completionWithCountDownLatch(signal, errorSB, successSB));
+        operation.start();
 
-		waitForSignalCountDown(signal);
+        waitForSignalCountDown(signal);
 
-		// Test values
-		assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
-		assertEquals("", successSB.toString());
+        // Test values
+        assertTrue(operation.getState() == HTTPURLRequestOperation.OperationState.Finished);
+        assertEquals("", successSB.toString());
 
-		assertFalse(errorSB.toString().isEmpty());
-		assertTrue(successSB.toString().isEmpty());
-	}
+        assertFalse(errorSB.toString().isEmpty());
+        assertTrue(successSB.toString().isEmpty());
+    }
 }
