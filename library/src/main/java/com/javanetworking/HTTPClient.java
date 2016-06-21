@@ -84,6 +84,11 @@ public class HTTPClient {
     private boolean asynchronous = true;
 
     /**
+     An integer value indicating the request timeout.
+    */
+    private int timeout = 500;
+
+    /**
      Static contructor.
      */
     public static HTTPClient clientWithBaseURL(String baseURL) {
@@ -374,6 +379,10 @@ public class HTTPClient {
         this.asynchronous = asynchronous;
     }
 
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     public void enqueueHTTPURLRequestOperation(HTTPURLRequestOperation operation) {
         this.operationQueue.addOperation(operation);
     }
@@ -408,7 +417,7 @@ public class HTTPClient {
 
         URLRequest request = URLRequest.requestWithURLString(urlString);
         request.setRequestMethod(method);
-        request.setConnectTimeout(500);
+        request.setConnectTimeout(timeout);
         for (String key : this.defaultHeaders.keySet()) {
             request.setRequestProperty(key, this.defaultHeaders.get(key));
         }
