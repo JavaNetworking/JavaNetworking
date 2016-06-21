@@ -17,5 +17,5 @@ jar {
   from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 
   baseName = 'JavaNetworking'
-  version =  '0.0.5'
+  version =  '0.1.0'
 }
