@@ -422,8 +422,8 @@ public class HTTPClient {
             request.setRequestProperty(key, this.defaultHeaders.get(key));
         }
 
-        // Set POST/PUT requestBody on operation
-        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
+        // Set POST/PUT/PATCH requestBody on operation
+        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT") || method.equalsIgnoreCase("PATCH")) {
             String charsetName = getStringEncoding().name();
 
             switch (this.parameterEncoding) {
