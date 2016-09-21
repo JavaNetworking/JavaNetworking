@@ -248,6 +248,9 @@ public class HTTPURLRequestOperation extends URLConnectionOperation {
             }
 
             String currentContentType = getContentType();
+            if (currentContentType == null) {
+                return true;
+            }
 
             for (String contentType : contentTypes) {
                 if (currentContentType.contains(contentType)) {
